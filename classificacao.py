@@ -1,13 +1,19 @@
+from operator import itemgetter
+
 # rounds - global collection to store every round of matches
 rounds = {}
 
 teams = {}
+
+plays = {}
 
 
 def create_team_list(ref_round):
     for match in ref_round:
         teams[match["host"]] = 0
         teams[match["guest"]] = 0
+        plays[match["host"]] = (0, 0, 0)
+        plays[match["guest"]] = (0, 0, 0)
 
 
 def calculate_teams_points():
@@ -55,11 +61,17 @@ def ler_arquivo_resultados(file_name):
 
 
 def save_classification():
+    list_to_save = sorted(teams.items(), key=itemgetter(1), reverse=True)
     try:
         file_classif = open("classificacao_geral", 'w', encoding='utf8')
-        for team, points in teams.items():
-            print(format(team,"12s") + " " + str(points) + "\n")
-            file_classif.write(format(team,"12s") + " " + str(points) + "\n")
+        pos = 1
+        for item in list_to_save:
+            print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]))
+            file_classif.write(format(item[0], "12s") + " " + str(item[1]) + "\n")
+            pos += 1
+        #for team, points in teams.items():
+        #    print(format(team,"12s") + " " + str(points) + "\n")
+        #    file_classif.write(format(team,"12s") + " " + str(points) + "\n")
         file_classif.close()
     except:
         print("Erro ao salvar arquivo:", "classificacao_geral")
@@ -98,6 +110,8 @@ def main():
     print(teams)
 
     save_classification()
+
+    print(sorted(teams.items(), key=itemgetter(1), reverse=True))
 
 
 main()
