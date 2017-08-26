@@ -5,15 +5,15 @@ rounds = {}
 
 teams = {}
 
-plays = {}
+plays = {}    #key = team value = [plays as host, plays as guest, total plays]
 
 
 def create_team_list(ref_round):
     for match in ref_round:
         teams[match["host"]] = 0
         teams[match["guest"]] = 0
-        plays[match["host"]] = (0, 0, 0)
-        plays[match["guest"]] = (0, 0, 0)
+        plays[match["host"]] = [0, 0, 0]
+        plays[match["guest"]] = [0, 0, 0]
 
 
 def calculate_teams_points():
@@ -22,6 +22,10 @@ def calculate_teams_points():
 
     for round in rounds:
         for match in rounds[round]:
+            plays[match["host"]][2] += 1
+            plays[match["host"]][0] += 1    #add play as host
+            plays[match["guest"]][2] += 1
+            plays[match["guest"]][1] += 1   #add play as guest
             if match["host score"] == match["guest score"]:
                 teams[match["host"]] += 1
                 teams[match["guest"]] += 1
@@ -66,12 +70,9 @@ def save_classification():
         file_classif = open("classificacao_geral", 'w', encoding='utf8')
         pos = 1
         for item in list_to_save:
-            print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]))
-            file_classif.write(format(item[0], "12s") + " " + str(item[1]) + "\n")
+            print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]][2]))
+            file_classif.write(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]][2])+ "\n")
             pos += 1
-        #for team, points in teams.items():
-        #    print(format(team,"12s") + " " + str(points) + "\n")
-        #    file_classif.write(format(team,"12s") + " " + str(points) + "\n")
         file_classif.close()
     except:
         print("Erro ao salvar arquivo:", "classificacao_geral")
@@ -107,11 +108,9 @@ def main():
 
     #for line in teams:
     #    print(line, ":", teams[line])
-    print(teams)
 
     save_classification()
 
-    print(sorted(teams.items(), key=itemgetter(1), reverse=True))
-
+    
 
 main()
