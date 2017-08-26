@@ -3,21 +3,21 @@ from operator import itemgetter
 # rounds - global collection to store every round of matches
 rounds = {}
 
-teams = {}
+points = {}  #key = team  value = [points as host, points as guest, total points
 
 plays = {}    #key = team value = [plays as host, plays as guest, total plays]
 
 
 def create_team_list(ref_round):
     for match in ref_round:
-        teams[match["host"]] = 0
-        teams[match["guest"]] = 0
+        points[match["host"]] = 0
+        points[match["guest"]] = 0
         plays[match["host"]] = [0, 0, 0]
         plays[match["guest"]] = [0, 0, 0]
 
 
 def calculate_teams_points():
-    if teams == {}:
+    if points == {}:
         create_team_list(rounds["1"])
 
     for round in rounds:
@@ -27,12 +27,12 @@ def calculate_teams_points():
             plays[match["guest"]][2] += 1
             plays[match["guest"]][1] += 1   #add play as guest
             if match["host score"] == match["guest score"]:
-                teams[match["host"]] += 1
-                teams[match["guest"]] += 1
+                points[match["host"]] += 1
+                points[match["guest"]] += 1
             elif match["host score"] > match["guest score"]:
-                teams[match["host"]] += 3
+                points[match["host"]] += 3
             else:
-                teams[match["guest"]] += 3
+                points[match["guest"]] += 3
 
 
 # ler_arquivo_resultados
@@ -65,7 +65,7 @@ def ler_arquivo_resultados(file_name):
 
 
 def save_classification():
-    list_to_save = sorted(teams.items(), key=itemgetter(1), reverse=True)
+    list_to_save = sorted(points.items(), key=itemgetter(1), reverse=True)
     try:
         file_classif = open("classificacao_geral", 'w', encoding='utf8')
         pos = 1
