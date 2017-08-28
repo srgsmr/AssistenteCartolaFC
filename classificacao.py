@@ -3,15 +3,15 @@ from operator import itemgetter
 # rounds - global collection to store every round of matches
 rounds = {}
 
-points = {}  #key = team  value = [points as host, points as guest, total points
+points = {}  #key = team  value = [total points, points as host, points as guest]
 
-plays = {}    #key = team value = [plays as host, plays as guest, total plays]
+plays = {}    #key = team value = [total plays, plays as host, plays as guest]
 
 
 def create_team_list(ref_round):
     for match in ref_round:
-        points[match["host"]] = 0
-        points[match["guest"]] = 0
+        points[match["host"]] = [0, 0, 0]
+        points[match["guest"]] = [0, 0, 0]
         plays[match["host"]] = [0, 0, 0]
         plays[match["guest"]] = [0, 0, 0]
 
@@ -22,17 +22,21 @@ def calculate_teams_points():
 
     for round in rounds:
         for match in rounds[round]:
-            plays[match["host"]][2] += 1
-            plays[match["host"]][0] += 1    #add play as host
-            plays[match["guest"]][2] += 1
-            plays[match["guest"]][1] += 1   #add play as guest
+            plays[match["host"]][0] += 1
+            plays[match["host"]][1] += 1    #add play as host
+            plays[match["guest"]][0] += 1
+            plays[match["guest"]][2] += 1   #add play as guest
             if match["host score"] == match["guest score"]:
-                points[match["host"]] += 1
-                points[match["guest"]] += 1
+                points[match["host"]][0] += 1
+                points[match["guest"]][0] += 1
+                points[match["host"]][1] += 1
+                points[match["guest"]][2] += 1
             elif match["host score"] > match["guest score"]:
-                points[match["host"]] += 3
+                points[match["host"]][0] += 3
+                points[match["host"]][1] += 3
             else:
-                points[match["guest"]] += 3
+                points[match["guest"]][0] += 3
+                points[match["guest"]][2] += 3
 
 
 # ler_arquivo_resultados
@@ -70,8 +74,8 @@ def save_classification():
         file_classif = open("classificacao_geral", 'w', encoding='utf8')
         pos = 1
         for item in list_to_save:
-            print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]][2]))
-            file_classif.write(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]][2])+ "\n")
+            print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]]))
+            file_classif.write(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1][0]) + " " + str(plays[item[0]][0])+ "\n")
             pos += 1
         file_classif.close()
     except:
@@ -102,6 +106,7 @@ def main():
     ler_arquivo_resultados('resultados_rodada19')
     ler_arquivo_resultados('resultados_rodada20')
     ler_arquivo_resultados('resultados_rodada21')
+    ler_arquivo_resultados('resultados_rodada22')
 
     #create_team_list(rounds["1"])
     calculate_teams_points()
