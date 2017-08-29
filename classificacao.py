@@ -7,6 +7,8 @@ points = {}  #key = team  value = [total points, points as host, points as guest
 
 plays = {}    #key = team value = [total plays, plays as host, plays as guest]
 
+performs = {}
+
 
 def create_team_list(ref_round):
     for match in ref_round:
@@ -14,6 +16,16 @@ def create_team_list(ref_round):
         points[match["guest"]] = [0, 0, 0]
         plays[match["host"]] = [0, 0, 0]
         plays[match["guest"]] = [0, 0, 0]
+
+
+def calculate_performance():
+    for team in plays.keys():
+        performs[team] = [0, 0, 0]
+        for i in range(3):
+            performs[team][i] = points[team][i]/(plays[team][i]*3)
+
+
+
 
 
 def calculate_teams_points():
@@ -74,7 +86,7 @@ def save_classification():
         file_classif = open("classificacao_geral", 'w', encoding='utf8')
         pos = 1
         for item in list_to_save:
-            print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]]))
+            print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]])+ " " + format(performs[item[0]][0],".3f"))
             file_classif.write(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1][0]) + " " + str(plays[item[0]][0])+ "\n")
             pos += 1
         file_classif.close()
@@ -113,9 +125,10 @@ def main():
 
     #for line in teams:
     #    print(line, ":", teams[line])
+    calculate_performance()
 
     save_classification()
 
-    
+    print(performs)
 
 main()
