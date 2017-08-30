@@ -3,19 +3,20 @@ from operator import itemgetter
 # rounds - global collection to store every round of matches
 rounds = {}
 
-points = {}  #key = team  value = [total points, points as host, points as guest]
+points = {}  # key = team  value = [total points, points as host, points as guest]
 
-plays = {}    #key = team value = [total plays, plays as host, plays as guest]
+plays = {}    # key = team value = [total plays, plays as host, plays as guest]
+
 
 performs = {}
+no_goals_received = {} # games that team suffer no goals: total, as host, as guest
 
-
-def create_team_list(ref_round):
+def create_team_list(ref_round, team_list):
     for match in ref_round:
-        points[match["host"]] = [0, 0, 0]
-        points[match["guest"]] = [0, 0, 0]
-        plays[match["host"]] = [0, 0, 0]
-        plays[match["guest"]] = [0, 0, 0]
+        team_list[match["host"]] = [0, 0, 0]
+        team_list[match["guest"]] = [0, 0, 0]
+        #plays[match["host"]] = [0, 0, 0]
+        #plays[match["guest"]] = [0, 0, 0]
 
 
 def calculate_performance():
@@ -25,12 +26,25 @@ def calculate_performance():
             performs[team][i] = points[team][i]/(plays[team][i]*3)
 
 
+def count_no_goals_received():
+    if no_goals_received == {}:
+        create_team_list(rounds["1"], no_goals_received)
+    for round in rounds:
+        for match in rounds[round]:
+            if match["guest score"] == 0:
+                no_goals_received[match["host"]][0] += 1
+                no_goals_received[match["host"]][1] += 1
+            if match["host score"] == 0:
+                no_goals_received[match["guest"]][0] += 1
+                no_goals_received[match["guest"]][2] += 1
 
 
 
 def calculate_teams_points():
     if points == {}:
-        create_team_list(rounds["1"])
+        create_team_list(rounds["1"], points)
+    if plays == {}:
+        create_team_list(rounds["1"], plays)
 
     for round in rounds:
         for match in rounds[round]:
@@ -80,14 +94,24 @@ def ler_arquivo_resultados(file_name):
         print("Erro ao abrir arquivo:", file_name)
 
 
+def print_sorted_table(table):
+    list_to_print = sorted(table.items(), key=itemgetter(1), reverse=True)
+    pos = 1
+    for item in list_to_print:
+        print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]))
+        pos += 1
+
+
 def save_classification():
     list_to_save = sorted(points.items(), key=itemgetter(1), reverse=True)
     try:
         file_classif = open("classificacao_geral", 'w', encoding='utf8')
         pos = 1
         for item in list_to_save:
-            print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]])+ " " + format(performs[item[0]][0],".3f"))
-            file_classif.write(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1][0]) + " " + str(plays[item[0]][0])+ "\n")
+            print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]]) +
+                  " " + format(performs[item[0]][0],".3f"))
+            file_classif.write(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1][0]) + " "
+                               + str(plays[item[0]][0])+ "\n")
             pos += 1
         file_classif.close()
     except:
@@ -127,8 +151,10 @@ def main():
     #    print(line, ":", teams[line])
     calculate_performance()
 
+    count_no_goals_received()
+
     save_classification()
 
-    print(performs)
+    print_sorted_table(no_goals_received)
 
 main()
