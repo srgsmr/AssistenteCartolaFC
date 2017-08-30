@@ -10,6 +10,7 @@ plays = {}    # key = team value = [total plays, plays as host, plays as guest]
 
 performs = {}
 no_goals_received = {} # games that team suffer no goals: total, as host, as guest
+top_goals_scored = {}
 
 def create_team_list(ref_round, team_list):
     for match in ref_round:
@@ -38,6 +39,18 @@ def count_no_goals_received():
                 no_goals_received[match["guest"]][0] += 1
                 no_goals_received[match["guest"]][2] += 1
 
+
+def count_top_scorer(top_score):
+    if top_goals_scored == {}:
+        create_team_list(rounds["1"], top_goals_scored)
+    for round in rounds:
+        for match in rounds[round]:
+            if match["guest score"] >= top_score:
+                top_goals_scored[match["guest"]][0] += 1
+                top_goals_scored[match["guest"]][2] += 1
+            if match["host score"] >= top_score:
+                top_goals_scored[match["host"]][0] += 1
+                top_goals_scored[match["host"]][1] += 1
 
 
 def calculate_teams_points():
@@ -108,8 +121,8 @@ def save_classification():
         file_classif = open("classificacao_geral", 'w', encoding='utf8')
         pos = 1
         for item in list_to_save:
-            print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]]) +
-                  " " + format(performs[item[0]][0],".3f"))
+            #print(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1]) + " " + str(plays[item[0]]) +
+            #      " " + format(performs[item[0]][0],".3f"))
             file_classif.write(format(pos, "02n")+ " " + format(item[0], "12s") + " " + str(item[1][0]) + " "
                                + str(plays[item[0]][0])+ "\n")
             pos += 1
@@ -120,7 +133,6 @@ def save_classification():
 
 
 def main():
-    print("Aqui vai aparecer a classificação do campeonato brasileiro!")
     ler_arquivo_resultados('resultados_rodada1')
     ler_arquivo_resultados('resultados_rodada2')
     ler_arquivo_resultados('resultados_rodada3')
@@ -152,9 +164,10 @@ def main():
     calculate_performance()
 
     count_no_goals_received()
+    count_top_scorer(3)
 
     save_classification()
 
-    print_sorted_table(no_goals_received)
+    print_sorted_table(top_goals_scored)
 
 main()
