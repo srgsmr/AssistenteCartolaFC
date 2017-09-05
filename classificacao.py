@@ -11,6 +11,8 @@ plays = {}    # key = team value = [total plays, plays as host, plays as guest]
 performs = {}
 no_goals_received = {} # games that team suffer no goals: total, as host, as guest
 top_goals_scored = {}
+goals_scored = {}
+goals_suffered = {}
 
 def create_team_list(ref_round, team_list):
     for match in ref_round:
@@ -38,6 +40,29 @@ def count_no_goals_received():
             if match["host score"] == 0:
                 no_goals_received[match["guest"]][0] += 1
                 no_goals_received[match["guest"]][2] += 1
+
+
+def count_goals_scorered():
+    if goals_scored == {}:
+        create_team_list(rounds["1"], goals_scored)
+    for round in rounds:
+        for match in rounds[round]:
+            goals_scored[match["guest"]][0] += match["guest score"]
+            goals_scored[match["guest"]][2] += match["guest score"]
+            goals_scored[match["host"]][0] += match["host score"]
+            goals_scored[match["host"]][1] += match["host score"]
+
+
+def count_goals_suffered():
+    if goals_suffered == {}:
+        create_team_list(rounds["1"], goals_suffered)
+    for round in rounds:
+        for match in rounds[round]:
+            goals_suffered[match["guest"]][0] += match["host score"]
+            goals_suffered[match["guest"]][2] += match["host score"]
+            goals_suffered[match["host"]][0] += match["guest score"]
+            goals_suffered[match["host"]][1] += match["guest score"]
+
 
 
 def count_top_scorer(top_score):
@@ -165,9 +190,11 @@ def main():
 
     count_no_goals_received()
     count_top_scorer(3)
+    count_goals_scorered()
+    count_goals_suffered()
 
     save_classification()
 
-    print_sorted_table(top_goals_scored)
+    print_sorted_table(goals_suffered)
 
 main()
