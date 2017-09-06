@@ -69,8 +69,10 @@ def calc_idx_goals_defense(round):
     if idx_goals_defense == {}:
         create_team_list(rounds["1"], idx_goals_defense)
     for match in round:
-        idx_goals_defense[match["host"]][0] = 1 / (goals_suffered[match["host"]][1] * goals_scored[match["guest"]][2])
-        idx_goals_defense[match["guest"]][0] = 1 / (goals_suffered[match["guest"]][2] * goals_scored[match["host"]][1])
+        idx_goals_defense[match["host"]][0] = 1 / ((goals_suffered[match["host"]][1]/plays[match["host"]][1]) *
+                                                   (goals_scored[match["guest"]][2])/plays[match["guest"]][2])
+        idx_goals_defense[match["guest"]][0] = 1 / ((goals_suffered[match["guest"]][2]/plays[match["guest"]][2]) *
+                                                    (goals_scored[match["host"]][1]/plays[match["host"]][1]))
 
 
 def count_goals_suffered():
