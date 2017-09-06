@@ -132,6 +132,28 @@ def ler_arquivo_resultados(file_name):
         print("Erro ao abrir arquivo:", file_name)
 
 
+def read_next_round_file(file_name):
+    try:
+        file = open(file_name, 'r', encoding='utf8')
+        header = file.readline().split(" ")
+        #round_num = header[1].strip()
+        round = []
+        for line in file:
+            match = {}
+            match["date"] = line.strip()
+            line = file.readline()
+            match["host"] = line.strip()
+            line = file.readline()
+            match["guest"] = line.strip()
+            round.append(match)
+
+        file.close()
+        return round
+
+    except:
+        print("Erro ao abrir arquivo:", file_name)
+
+
 def print_sorted_table(table):
     list_to_print = sorted(table.items(), key=itemgetter(1), reverse=True)
     pos = 1
@@ -196,5 +218,9 @@ def main():
     save_classification()
 
     print_sorted_table(goals_suffered)
+
+    next_round = read_next_round_file('jogos_rodada23')
+    print(next_round)
+    print(len(next_round))
 
 main()
