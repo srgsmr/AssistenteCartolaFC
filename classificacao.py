@@ -13,6 +13,8 @@ no_goals_received = {} # games that team suffer no goals: total, as host, as gue
 top_goals_scored = {}
 goals_scored = {}
 goals_suffered = {}
+idx_goals_attack = {}
+
 
 def create_team_list(ref_round, team_list):
     for match in ref_round:
@@ -51,6 +53,14 @@ def count_goals_scorered():
             goals_scored[match["guest"]][2] += match["guest score"]
             goals_scored[match["host"]][0] += match["host score"]
             goals_scored[match["host"]][1] += match["host score"]
+
+
+def calc_idx_goals_attack(round):
+    if idx_goals_attack == {}:
+        create_team_list(rounds["1"], idx_goals_attack)
+    for match in round:
+        idx_goals_attack[match["host"]][0] = goals_scored[match["host"]][1] * goals_suffered[match["guest"]][2]
+        idx_goals_attack[match["guest"]][0] = goals_scored[match["guest"]][2] * goals_suffered[match["host"]][1]
 
 
 def count_goals_suffered():
@@ -217,10 +227,11 @@ def main():
 
     save_classification()
 
-    print_sorted_table(goals_suffered)
 
     next_round = read_next_round_file('jogos_rodada23')
-    print(next_round)
-    print(len(next_round))
+
+    calc_idx_goals_attack(next_round)
+    print_sorted_table(idx_goals_attack)
+
 
 main()
