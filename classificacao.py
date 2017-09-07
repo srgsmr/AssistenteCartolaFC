@@ -132,7 +132,7 @@ def ler_arquivo_resultados(file_name):
         rodada = open(file_name, 'r', encoding='utf8')
         header = rodada.readline().split(" ")
         round_num = header[1].strip()
-        round = []
+        match_round = []
         for line in rodada:
             match = {}
             match["date"] = line.strip()
@@ -144,22 +144,22 @@ def ler_arquivo_resultados(file_name):
             score = line.split(":")
             match["host score"] = int(score[0])
             match["guest score"] = int(score[1])
-            round.append(match)
+            match_round.append(match)
 
 
         rodada.close()
-        rounds[round_num] = round
+        rounds[round_num] = match_round
 
-    except:
+    except FileNotFoundError:
         print("Erro ao abrir arquivo:", file_name)
 
 
 def read_next_round_file(file_name):
     try:
         file = open(file_name, 'r', encoding='utf8')
-        header = file.readline().split(" ")
+        file.readline().split(" ")
         #round_num = header[1].strip()
-        round = []
+        match_round = []
         for line in file:
             match = {}
             match["date"] = line.strip()
@@ -167,12 +167,12 @@ def read_next_round_file(file_name):
             match["host"] = line.strip()
             line = file.readline()
             match["guest"] = line.strip()
-            round.append(match)
+            match_round.append(match)
 
         file.close()
-        return round
+        return match_round
 
-    except:
+    except FileNotFoundError:
         print("Erro ao abrir arquivo:", file_name)
 
 
