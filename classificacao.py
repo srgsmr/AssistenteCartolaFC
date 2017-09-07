@@ -34,8 +34,8 @@ def calculate_performance():
 def count_no_goals_received():
     if no_goals_received == {}:
         create_team_list(rounds["1"], no_goals_received)
-    for round in rounds:
-        for match in rounds[round]:
+    for match_round in rounds:
+        for match in rounds[match_round]:
             if match["guest score"] == 0:
                 no_goals_received[match["host"]][0] += 1
                 no_goals_received[match["host"]][1] += 1
@@ -47,28 +47,28 @@ def count_no_goals_received():
 def count_goals_scorered():
     if goals_scored == {}:
         create_team_list(rounds["1"], goals_scored)
-    for round in rounds:
-        for match in rounds[round]:
+    for match_round in rounds:
+        for match in rounds[match_round]:
             goals_scored[match["guest"]][0] += match["guest score"]
             goals_scored[match["guest"]][2] += match["guest score"]
             goals_scored[match["host"]][0] += match["host score"]
             goals_scored[match["host"]][1] += match["host score"]
 
 
-def calc_idx_goals_attack(round):
+def calc_idx_goals_attack(match_round):
     if idx_goals_attack == {}:
         create_team_list(rounds["1"], idx_goals_attack)
-    for match in round:
+    for match in match_round:
         idx_goals_attack[match["host"]][0] = goals_scored[match["host"]][1]/plays[match["host"]][1] * \
                                              goals_suffered[match["guest"]][2]/plays[match["guest"]][2]
         idx_goals_attack[match["guest"]][0] = goals_scored[match["guest"]][2]/plays[match["guest"]][2] * \
                                               goals_suffered[match["host"]][1]/plays[match["host"]][1]
 
 
-def calc_idx_goals_defense(round):
+def calc_idx_goals_defense(match_round):
     if idx_goals_defense == {}:
         create_team_list(rounds["1"], idx_goals_defense)
-    for match in round:
+    for match in match_round:
         idx_goals_defense[match["host"]][0] = 1 / ((goals_suffered[match["host"]][1]/plays[match["host"]][1]) *
                                                    (goals_scored[match["guest"]][2])/plays[match["guest"]][2])
         idx_goals_defense[match["guest"]][0] = 1 / ((goals_suffered[match["guest"]][2]/plays[match["guest"]][2]) *
@@ -78,8 +78,8 @@ def calc_idx_goals_defense(round):
 def count_goals_suffered():
     if goals_suffered == {}:
         create_team_list(rounds["1"], goals_suffered)
-    for round in rounds:
-        for match in rounds[round]:
+    for match_round in rounds:
+        for match in rounds[match_round]:
             goals_suffered[match["guest"]][0] += match["host score"]
             goals_suffered[match["guest"]][2] += match["host score"]
             goals_suffered[match["host"]][0] += match["guest score"]
@@ -90,8 +90,8 @@ def count_goals_suffered():
 def count_top_scorer(top_score):
     if top_goals_scored == {}:
         create_team_list(rounds["1"], top_goals_scored)
-    for round in rounds:
-        for match in rounds[round]:
+    for match_round in rounds:
+        for match in rounds[match_round]:
             if match["guest score"] >= top_score:
                 top_goals_scored[match["guest"]][0] += 1
                 top_goals_scored[match["guest"]][2] += 1
@@ -106,8 +106,8 @@ def calculate_teams_points():
     if plays == {}:
         create_team_list(rounds["1"], plays)
 
-    for round in rounds:
-        for match in rounds[round]:
+    for match_round in rounds:
+        for match in rounds[match_round]:
             plays[match["host"]][0] += 1
             plays[match["host"]][1] += 1    #add play as host
             plays[match["guest"]][0] += 1
@@ -196,7 +196,7 @@ def save_classification():
                                + str(plays[item[0]][0])+ "\n")
             pos += 1
         file_classif.close()
-    except:
+    except FileExistsError:
         print("Erro ao salvar arquivo:", "classificacao_geral")
 
 
