@@ -205,31 +205,47 @@ def save_classification():
 
 def main():
     # load results from the first n rounds of league
-    read_league_results(22)
+    num_round = 22
+    print("Lendo os resultados dos jogos das " + str(num_round) + " rodadas...")
+    read_league_results(num_round)
 
+    print("Calculando os pontos ganhos...")
     calculate_teams_points()
 
     # for line in teams:
     #    print(line, ":", teams[line])
+    print("Calculando o aproveitamento...")
     calculate_performance()
 
+    print("Calculando jogos sem sofrer gols...")
     count_no_goals_received()
+    print("Calculando jogos marcando mais que X gols...")
     count_top_scorer(3)
+    print("Calculando gols marcados...")
     count_goals_scorered()
+    print("Calculando gols sofridos...")
     count_goals_suffered()
 
+    print("Gravando a classificação em arquivo...")
     save_classification()
 
+    print("Carregando jogos da próxima rodada...")
     next_round = read_next_round_file('jogos_rodada23')
 
+    print("Calculando índice de ataque baseado em gols...")
     calc_idx_goals_attack(next_round)
-    print("--Melhores times para escalar Atacantes:")
-    print_sorted_table(idx_goals_attack)
 
     print("\n")
+    print("-- Melhores times para escalar Atacantes:")
+    print("\n")
+    print_sorted_table(idx_goals_attack)
 
+
+    print("Calculando índice de defesa baseado em gols...")
     calc_idx_goals_defense(next_round)
-    print("--Melhores times para escalar Defensores:")
+    print("\n")
+    print("-- Melhores times para escalar Defensores:")
+    print("\n")
     print_sorted_table(idx_goals_defense)
 
 
