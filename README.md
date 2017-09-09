@@ -1,0 +1,2 @@
+# AssistenteCartolaFC
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/cbdde91d3bf64a8a9d4f25787278a7b0)](https://www.codacy.com/app/srgsmr/AssistenteCartolaFC?utm_source=github.com&utm_medium=referral&utm_content=srgsmr/AssistenteCartolaFC&utm_campaign=badger)
