@@ -1,5 +1,11 @@
 from operator import itemgetter
 
+# constants
+i_total = 0
+i_home = 1
+i_guest = 2
+
+
 # rounds - global collection to store every round of matches
 rounds = {}
 
@@ -37,11 +43,11 @@ def count_no_goals_received():
     for match_round in rounds:
         for match in rounds[match_round]:
             if match["guest score"] == 0:
-                no_goals_received[match["host"]][0] += 1
-                no_goals_received[match["host"]][1] += 1
+                no_goals_received[match["host"]][i_total] += 1
+                no_goals_received[match["host"]][i_home] += 1
             if match["host score"] == 0:
-                no_goals_received[match["guest"]][0] += 1
-                no_goals_received[match["guest"]][2] += 1
+                no_goals_received[match["guest"]][i_total] += 1
+                no_goals_received[match["guest"]][i_guest] += 1
 
 
 def count_goals_scorered():
@@ -49,30 +55,30 @@ def count_goals_scorered():
         create_team_list(rounds["1"], goals_scored)
     for match_round in rounds:
         for match in rounds[match_round]:
-            goals_scored[match["guest"]][0] += match["guest score"]
-            goals_scored[match["guest"]][2] += match["guest score"]
-            goals_scored[match["host"]][0] += match["host score"]
-            goals_scored[match["host"]][1] += match["host score"]
+            goals_scored[match["guest"]][i_total] += match["guest score"]
+            goals_scored[match["guest"]][i_guest] += match["guest score"]
+            goals_scored[match["host"]][i_total] += match["host score"]
+            goals_scored[match["host"]][i_home] += match["host score"]
 
 
 def calc_idx_goals_attack(match_round):
     if idx_goals_attack == {}:
         create_team_list(rounds["1"], idx_goals_attack)
     for match in match_round:
-        idx_goals_attack[match["host"]][0] = goals_scored[match["host"]][1] / plays[match["host"]][1] * \
-                                             goals_suffered[match["guest"]][2] / plays[match["guest"]][2]
-        idx_goals_attack[match["guest"]][0] = goals_scored[match["guest"]][2] / plays[match["guest"]][2] * \
-                                              goals_suffered[match["host"]][1] / plays[match["host"]][1]
+        idx_goals_attack[match["host"]][i_total] = goals_scored[match["host"]][i_home] / plays[match["host"]][i_home] * \
+                                             goals_suffered[match["guest"]][i_guest] / plays[match["guest"]][i_guest]
+        idx_goals_attack[match["guest"]][i_total] = goals_scored[match["guest"]][i_guest] / plays[match["guest"]][i_guest] * \
+                                              goals_suffered[match["host"]][i_home] / plays[match["host"]][i_home]
 
 
 def calc_idx_goals_defense(match_round):
     if idx_goals_defense == {}:
         create_team_list(rounds["1"], idx_goals_defense)
     for match in match_round:
-        idx_goals_defense[match["host"]][0] = 1 / ((goals_suffered[match["host"]][1] / plays[match["host"]][1]) *
-                                                   (goals_scored[match["guest"]][2]) / plays[match["guest"]][2])
-        idx_goals_defense[match["guest"]][0] = 1 / ((goals_suffered[match["guest"]][2] / plays[match["guest"]][2]) *
-                                                    (goals_scored[match["host"]][1] / plays[match["host"]][1]))
+        idx_goals_defense[match["host"]][i_total] = 1 / ((goals_suffered[match["host"]][i_home] / plays[match["host"]][i_home]) *
+                                                   (goals_scored[match["guest"]][i_guest]) / plays[match["guest"]][i_guest])
+        idx_goals_defense[match["guest"]][i_total] = 1 / ((goals_suffered[match["guest"]][i_guest] / plays[match["guest"]][i_guest]) *
+                                                    (goals_scored[match["host"]][i_home] / plays[match["host"]][i_home]))
 
 
 def count_goals_suffered():
@@ -80,10 +86,10 @@ def count_goals_suffered():
         create_team_list(rounds["1"], goals_suffered)
     for match_round in rounds:
         for match in rounds[match_round]:
-            goals_suffered[match["guest"]][0] += match["host score"]
-            goals_suffered[match["guest"]][2] += match["host score"]
-            goals_suffered[match["host"]][0] += match["guest score"]
-            goals_suffered[match["host"]][1] += match["guest score"]
+            goals_suffered[match["guest"]][i_total] += match["host score"]
+            goals_suffered[match["guest"]][i_guest] += match["host score"]
+            goals_suffered[match["host"]][i_total] += match["guest score"]
+            goals_suffered[match["host"]][i_home] += match["guest score"]
 
 
 def count_top_scorer(top_score):
@@ -92,11 +98,11 @@ def count_top_scorer(top_score):
     for match_round in rounds:
         for match in rounds[match_round]:
             if match["guest score"] >= top_score:
-                top_goals_scored[match["guest"]][0] += 1
-                top_goals_scored[match["guest"]][2] += 1
+                top_goals_scored[match["guest"]][i_total] += 1
+                top_goals_scored[match["guest"]][i_guest] += 1
             if match["host score"] >= top_score:
-                top_goals_scored[match["host"]][0] += 1
-                top_goals_scored[match["host"]][1] += 1
+                top_goals_scored[match["host"]][i_total] += 1
+                top_goals_scored[match["host"]][i_home] += 1
 
 
 def calculate_teams_points():
@@ -107,21 +113,21 @@ def calculate_teams_points():
 
     for match_round in rounds:
         for match in rounds[match_round]:
-            plays[match["host"]][0] += 1
-            plays[match["host"]][1] += 1  # add play as host
-            plays[match["guest"]][0] += 1
-            plays[match["guest"]][2] += 1  # add play as guest
+            plays[match["host"]][i_total] += 1
+            plays[match["host"]][i_home] += 1  # add play as host
+            plays[match["guest"]][i_total] += 1
+            plays[match["guest"]][i_guest] += 1  # add play as guest
             if match["host score"] == match["guest score"]:
-                points[match["host"]][0] += 1
-                points[match["guest"]][0] += 1
-                points[match["host"]][1] += 1
-                points[match["guest"]][2] += 1
+                points[match["host"]][i_total] += 1
+                points[match["guest"]][i_total] += 1
+                points[match["host"]][i_home] += 1
+                points[match["guest"]][i_guest] += 1
             elif match["host score"] > match["guest score"]:
-                points[match["host"]][0] += 3
-                points[match["host"]][1] += 3
+                points[match["host"]][i_total] += 3
+                points[match["host"]][i_home] += 3
             else:
-                points[match["guest"]][0] += 3
-                points[match["guest"]][2] += 3
+                points[match["guest"]][i_total] += 3
+                points[match["guest"]][i_guest] += 3
 
 
 # ler_arquivo_resultados
