@@ -65,20 +65,28 @@ def calc_idx_goals_attack(match_round):
     if idx_goals_attack == {}:
         create_team_list(rounds["1"], idx_goals_attack)
     for match in match_round:
-        idx_goals_attack[match["host"]][i_total] = goals_scored[match["host"]][i_home] / plays[match["host"]][i_home] * \
-                                             goals_suffered[match["guest"]][i_guest] / plays[match["guest"]][i_guest]
-        idx_goals_attack[match["guest"]][i_total] = goals_scored[match["guest"]][i_guest] / plays[match["guest"]][i_guest] * \
-                                              goals_suffered[match["host"]][i_home] / plays[match["host"]][i_home]
+        idx_goals_attack[match["host"]][i_total] = goals_scored[match["host"]][i_home] / \
+                                                   plays[match["host"]][i_home] * \
+                                                   goals_suffered[match["guest"]][i_guest] / \
+                                                   plays[match["guest"]][i_guest]
+        idx_goals_attack[match["guest"]][i_total] = goals_scored[match["guest"]][i_guest] / \
+                                                    plays[match["guest"]][i_guest] * \
+                                                    goals_suffered[match["host"]][i_home] / \
+                                                    plays[match["host"]][i_home]
 
 
 def calc_idx_goals_defense(match_round):
     if idx_goals_defense == {}:
         create_team_list(rounds["1"], idx_goals_defense)
     for match in match_round:
-        idx_goals_defense[match["host"]][i_total] = 1 / ((goals_suffered[match["host"]][i_home] / plays[match["host"]][i_home]) *
-                                                   (goals_scored[match["guest"]][i_guest]) / plays[match["guest"]][i_guest])
-        idx_goals_defense[match["guest"]][i_total] = 1 / ((goals_suffered[match["guest"]][i_guest] / plays[match["guest"]][i_guest]) *
-                                                    (goals_scored[match["host"]][i_home] / plays[match["host"]][i_home]))
+        idx_goals_defense[match["host"]][i_total] = 1 / ((goals_suffered[match["host"]][i_home] / \
+                                                          plays[match["host"]][i_home]) *
+                                                   (goals_scored[match["guest"]][i_guest]) / \
+                                                         plays[match["guest"]][i_guest])
+        idx_goals_defense[match["guest"]][i_total] = 1 / ((goals_suffered[match["guest"]][i_guest] / \
+                                                           plays[match["guest"]][i_guest]) *
+                                                    (goals_scored[match["host"]][i_home] / \
+                                                            plays[match["host"]][i_home]))
 
 
 def count_goals_suffered():
