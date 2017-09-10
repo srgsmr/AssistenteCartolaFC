@@ -51,6 +51,7 @@ def count_no_goals_received():
 
 
 def count_goals_scorered():
+    """Count the number of goal scored for each team on the played rounds of the league"""
     if goals_scored == {}:
         create_team_list(rounds["1"], goals_scored)
     for match_round in rounds:
@@ -62,6 +63,7 @@ def count_goals_scorered():
 
 
 def calc_idx_goals_attack(match_round):
+    """Calculate an index for each team based on the match_round to rank the best options on attack"""
     if idx_goals_attack == {}:
         create_team_list(rounds["1"], idx_goals_attack)
     for match in match_round:
@@ -76,6 +78,7 @@ def calc_idx_goals_attack(match_round):
 
 
 def calc_idx_goals_defense(match_round):
+    """Calculate an index for each team based on the next match_round to rank the best options on defense"""
     if idx_goals_defense == {}:
         create_team_list(rounds["1"], idx_goals_defense)
     for match in match_round:
@@ -90,6 +93,7 @@ def calc_idx_goals_defense(match_round):
 
 
 def count_goals_suffered():
+    """Count the number of goal suffered for each team on the played rounds of the league"""
     if goals_suffered == {}:
         create_team_list(rounds["1"], goals_suffered)
     for match_round in rounds:
