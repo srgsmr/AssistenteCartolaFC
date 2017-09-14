@@ -1,4 +1,5 @@
 from operator import itemgetter
+"""itemgetter used to sort dictionary items"""
 
 # constants
 i_total = 0
@@ -23,14 +24,14 @@ idx_goals_defense = {}
 
 
 def create_team_list(ref_round, team_list):
+    """ creates an empty team list to populate with metrics"""
     for match in ref_round:
         team_list[match["host"]] = [0, 0, 0]
         team_list[match["guest"]] = [0, 0, 0]
-        # plays[match["host"]] = [0, 0, 0]
-        # plays[match["guest"]] = [0, 0, 0]
 
 
 def calculate_performance():
+    """ calculates team s performance based on points earned per points matched"""
     for team in plays.keys():
         performs[team] = [0, 0, 0]
         for i in range(3):
@@ -38,6 +39,7 @@ def calculate_performance():
 
 
 def count_no_goals_received():
+    """ count the number of plays a teams have with no goals suffered"""
     if no_goals_received == {}:
         create_team_list(rounds["1"], no_goals_received)
     for match_round in rounds:
@@ -105,6 +107,7 @@ def count_goals_suffered():
 
 
 def count_top_scorer(top_score):
+    """ calculates de the number of plays in witch a team scores more or equal to top_score goals"""
     if top_goals_scored == {}:
         create_team_list(rounds["1"], top_goals_scored)
     for match_round in rounds:
@@ -118,6 +121,7 @@ def count_top_scorer(top_score):
 
 
 def calculate_teams_points():
+    """ calculate de number of points a team earned on the league"""
     if points == {}:
         create_team_list(rounds["1"], points)
     if plays == {}:
@@ -142,9 +146,8 @@ def calculate_teams_points():
                 points[match["guest"]][i_guest] += 3
 
 
-# ler_arquivo_resultados
-# function to load matches from files anda store on rounds collection
 def read_round_results(file_name):
+    """ loads matches from files and store on rounds collection"""
     try:
         rodada = open(file_name, 'r', encoding='utf8')
         header = rodada.readline().split(" ")
@@ -171,11 +174,13 @@ def read_round_results(file_name):
 
 
 def read_league_results(num_rounds):
+    """ reads results from the league from beginning until the num_rounds round"""
     for i in range(num_rounds):
         read_round_results("resultados_rodada" + str(i + 1))
 
 
 def read_next_round_file(file_name):
+    """ reads the matches form the next round of the league"""
     try:
         file = open(file_name, 'r', encoding='utf8')
         file.readline().split(" ")
@@ -198,6 +203,7 @@ def read_next_round_file(file_name):
 
 
 def print_sorted_table(table):
+    """ prints the dictionary ordered by the indexes """
     list_to_print = sorted(table.items(), key=itemgetter(1), reverse=True)
     pos = 1
     for item in list_to_print:
@@ -206,6 +212,7 @@ def print_sorted_table(table):
 
 
 def save_classification():
+    """ saves actual classification of the league on a file"""
     list_to_save = sorted(points.items(), key=itemgetter(1), reverse=True)
     try:
         file_classif = open("classificacao_geral", 'w', encoding='utf8')
@@ -222,6 +229,8 @@ def save_classification():
 
 
 def main():
+    """ the main funtion :) """
+
     # load results from the first n rounds of league
     num_round = 23
     print("Lendo os resultados dos jogos das " + str(num_round) + " rodadas...")
