@@ -223,7 +223,7 @@ def save_classification():
 
 def main():
     # load results from the first n rounds of league
-    num_round = 22
+    num_round = 23
     print("Lendo os resultados dos jogos das " + str(num_round) + " rodadas...")
     read_league_results(num_round)
 
@@ -248,7 +248,7 @@ def main():
     save_classification()
 
     print("Carregando jogos da próxima rodada...")
-    next_round = read_next_round_file('jogos_rodada23')
+    next_round = read_next_round_file('jogos_rodada24')
 
     print("Calculando índice de ataque baseado em gols...")
     calc_idx_goals_attack(next_round)
