@@ -228,6 +228,26 @@ def save_classification():
         print("Erro ao salvar arquivo:", "classificacao_geral")
 
 
+def formation_analysis(defense, attack):
+    """Calculates the possible points for a specific defense/attack formation"""
+
+    total_games_played = 0
+    total_goals_scored = 0
+    total_no_goals = 0
+    for team in plays.keys():
+        total_games_played += plays[team][i_total]
+        total_goals_scored += goals_scored[team][i_total]
+        total_no_goals += no_goals_received[team][i_total]
+
+    points = (float(total_goals_scored) / float(total_games_played) * 8 * attack) + \
+             (float(total_no_goals) / float(total_games_played) * 5 * defense)
+
+
+    print ("Pontos para " + str(defense) + " defensores e " + str(attack) + " atacantes: " + str(points))
+    return points
+
+
+
 def main():
     """ the main funtion :) """
 
@@ -274,6 +294,9 @@ def main():
     print("-- Melhores times para escalar Defensores:")
     print("\n")
     print_sorted_table(idx_goals_defense)
+
+    formation_analysis(4, 7)
+    formation_analysis(5, 6)
 
 
 main()
