@@ -21,6 +21,7 @@ goals_scored = {}
 goals_suffered = {}
 idx_goals_attack = {}
 idx_goals_defense = {}
+idx_coach = {}
 
 
 def create_team_list(ref_round, team_list):
@@ -77,6 +78,14 @@ def calc_idx_goals_attack(match_round):
                                                     plays[match["guest"]][i_guest] * \
                                                     goals_suffered[match["host"]][i_home] / \
                                                     plays[match["host"]][i_home]
+
+
+def calc_idx_coach(match_round):
+    """Calculate an index for each team combining attack and defense indexes to rank coaches"""
+    if idx_coach == {}:
+        create_team_list(rounds["1"], idx_coach)
+    for team in plays.keys():
+        idx_coach[team][i_total] = idx_goals_defense[team][i_total] * idx_goals_attack[team][i_total]
 
 
 def calc_idx_goals_defense(match_round):
@@ -252,7 +261,7 @@ def main():
     """ the main funtion :) """
 
     # load results from the first n rounds of league
-    num_round = 23
+    num_round = 24
     print("Lendo os resultados dos jogos das " + str(num_round) + " rodadas...")
     read_league_results(num_round)
 
@@ -277,7 +286,7 @@ def main():
     save_classification()
 
     print("Carregando jogos da próxima rodada...")
-    next_round = read_next_round_file('jogos_rodada24')
+    next_round = read_next_round_file('jogos_rodada25')
 
     print("Calculando índice de ataque baseado em gols...")
     calc_idx_goals_attack(next_round)
@@ -295,6 +304,14 @@ def main():
     print("\n")
     print_sorted_table(idx_goals_defense)
 
+    print("Calculando índice de técnico...")
+    calc_idx_coach(next_round)
+    print("\n")
+    print("-- Melhores times para escalar Técnicos:")
+    print("\n")
+    print_sorted_table(idx_coach)
+
+    print("\n")
     formation_analysis(4, 7)
     formation_analysis(5, 6)
 
