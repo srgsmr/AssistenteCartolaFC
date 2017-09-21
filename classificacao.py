@@ -264,7 +264,7 @@ def formation_analysis(defense, attack):
         total_no_goals += no_goals_received[team][i_total]
 
     points = (float(total_goals_scored) / float(total_games_played) * 8 * attack) + \
-             (float(total_no_goals) / float(total_games_played) * 5 * defense)
+             (float(total_no_goals) / float(total_games_played) * 5 * (defense + 1))
 
 
     print ("Pontos para " + str(defense) + " defensores e " + str(attack) + " atacantes: " + str(points))
@@ -335,8 +335,8 @@ def main():
     print_sorted_table(idx_goalkeeper)
 
     print("\n")
-    formation_analysis(4, 7)
-    formation_analysis(5, 6)
+    formation_analysis(3, 7)
+    formation_analysis(4, 6.5)
 
 
 main()
