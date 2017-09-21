@@ -1,0 +1,122 @@
+/Library/Frameworks/Python.framework/Versions/3.6/bin/python3.6 /Users/sergioesmerio/PycharmProjects/Cartola/classificacao.py
+Lendo os resultados dos jogos das 24 rodadas...
+Calculando os pontos ganhos...
+Calculando o aproveitamento...
+Calculando jogos sem sofrer gols...
+Calculando jogos marcando mais que X gols...
+Calculando gols marcados...
+Calculando gols sofridos...
+Gravando a classificação em arquivo...
+Carregando jogos da próxima rodada...
+Calculando índice de ataque baseado em gols...
+
+
+-- Melhores times para escalar Atacantes:
+
+
+01 Grêmio       [2.5, 0, 0]
+02 Sport Recife [2.5, 0, 0]
+03 Bahia        [2.3863636363636362, 0, 0]
+04 Flamengo     [2.361111111111111, 0, 0]
+05 Fluminense   [1.888888888888889, 0, 0]
+06 Chapecoense  [1.8472222222222223, 0, 0]
+07 Palmeiras    [1.7708333333333333, 0, 0]
+08 Vitória      [1.575757575757576, 0, 0]
+09 Santos       [1.4583333333333333, 0, 0]
+10 Corinthians  [1.3884297520661157, 0, 0]
+11 Atlético-MG  [1.3787878787878787, 0, 0]
+12 Cruzeiro     [1.2638888888888888, 0, 0]
+13 Atlético-GO  [1.0833333333333333, 0, 0]
+14 Ponte Preta  [0.9444444444444443, 0, 0]
+15 Vasco        [0.9166666666666666, 0, 0]
+16 Coritiba     [0.7638888888888888, 0, 0]
+17 Botafogo     [0.6875, 0, 0]
+18 São Paulo    [0.5950413223140496, 0, 0]
+19 Avaí         [0.4444444444444444, 0, 0]
+20 Atlético-PR  [0.4166666666666667, 0, 0]
+Calculando índice de defesa baseado em gols...
+
+
+-- Melhores times para escalar Defensores:
+
+
+01 Santos       [2.4, 0, 0]
+02 Flamengo     [2.25, 0, 0]
+03 Corinthians  [1.6805555555555556, 0, 0]
+04 Coritiba     [1.4545454545454546, 0, 0]
+05 Botafogo     [1.309090909090909, 0, 0]
+06 Sport Recife [1.090909090909091, 0, 0]
+07 Chapecoense  [1.0588235294117647, 0, 0]
+08 Cruzeiro     [0.9230769230769231, 0, 0]
+09 Atlético-GO  [0.7912087912087911, 0, 0]
+10 Vitória      [0.7252747252747254, 0, 0]
+11 São Paulo    [0.7202380952380953, 0, 0]
+12 Atlético-PR  [0.6857142857142856, 0, 0]
+13 Atlético-MG  [0.6346153846153847, 0, 0]
+14 Fluminense   [0.5647058823529412, 0, 0]
+15 Ponte Preta  [0.5413533834586466, 0, 0]
+16 Palmeiras    [0.5294117647058824, 0, 0]
+17 Avaí         [0.4235294117647059, 0, 0]
+18 Grêmio       [0.419047619047619, 0, 0]
+19 Bahia        [0.4000000000000001, 0, 0]
+20 Vasco        [0.4, 0, 0]
+Calculando índice de técnico...
+
+
+-- Melhores times para escalar Técnicos:
+
+
+01 Flamengo     [5.3125, 0, 0]
+02 Santos       [3.4999999999999996, 0, 0]
+03 Sport Recife [2.7272727272727275, 0, 0]
+04 Corinthians  [2.3333333333333335, 0, 0]
+05 Chapecoense  [1.9558823529411766, 0, 0]
+06 Cruzeiro     [1.1666666666666667, 0, 0]
+07 Vitória      [1.142857142857143, 0, 0]
+08 Coritiba     [1.1111111111111112, 0, 0]
+09 Fluminense   [1.0666666666666667, 0, 0]
+10 Grêmio       [1.0476190476190474, 0, 0]
+11 Bahia        [0.9545454545454547, 0, 0]
+12 Palmeiras    [0.9375, 0, 0]
+13 Botafogo     [0.9, 0, 0]
+14 Atlético-MG  [0.875, 0, 0]
+15 Atlético-GO  [0.8571428571428569, 0, 0]
+16 Ponte Preta  [0.5112781954887217, 0, 0]
+17 São Paulo    [0.42857142857142866, 0, 0]
+18 Vasco        [0.3666666666666667, 0, 0]
+19 Atlético-PR  [0.2857142857142857, 0, 0]
+20 Avaí         [0.18823529411764706, 0, 0]
+
+
+Calculando índice de goleiro...
+
+
+-- Melhores times para escalar Goleiro:
+
+
+01 Corinthians  [25.208333333333332, 0, 0]
+02 Bahia        [17.500000000000004, 0, 0]
+03 Botafogo     [13.09090909090909, 0, 0]
+04 Cruzeiro     [9.230769230769232, 0, 0]
+05 Atlético-MG  [7.878787878787881, 0, 0]
+06 Sport Recife [7.333333333333333, 0, 0]
+07 São Paulo    [6.94214876033058, 0, 0]
+08 Santos       [5.833333333333334, 0, 0]
+09 Chapecoense  [5.666666666666665, 0, 0]
+10 Atlético-PR  [5.485714285714284, 0, 0]
+11 Ponte Preta  [5.413533834586466, 0, 0]
+12 Fluminense   [5.3125, 0, 0]
+13 Vitória      [5.0769230769230775, 0, 0]
+14 Coritiba     [4.8125, 0, 0]
+15 Avaí         [4.658823529411765, 0, 0]
+16 Grêmio       [4.609523809523808, 0, 0]
+17 Flamengo     [4.0, 0, 0]
+18 Atlético-GO  [3.791666666666665, 0, 0]
+19 Palmeiras    [3.7058823529411775, 0, 0]
+20 Vasco        [2.4000000000000004, 0, 0]
+
+
+Pontos para 3 defensores e 7 atacantes: 73.13333333333333
+Pontos para 4 defensores e 6.5 atacantes: 70.07916666666665
+
+Process finished with exit code 0
