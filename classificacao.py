@@ -22,6 +22,7 @@ goals_suffered = {}
 idx_goals_attack = {}
 idx_goals_defense = {}
 idx_coach = {}
+idx_goalkeeper = {}
 
 
 def create_team_list(ref_round, team_list):
@@ -81,11 +82,25 @@ def calc_idx_goals_attack(match_round):
 
 
 def calc_idx_coach(match_round):
-    """Calculate an index for each team combining attack and defense indexes to rank coaches"""
+    """Calculate an index for each team combining attack and defense indexes to rank coaches for the round"""
     if idx_coach == {}:
         create_team_list(rounds["1"], idx_coach)
     for team in plays.keys():
         idx_coach[team][i_total] = idx_goals_defense[team][i_total] * idx_goals_attack[team][i_total]
+
+
+def calc_idx_goalkeeper(match_round):
+    """Calculate an index to rank goalkeeper for the round"""
+    if idx_goalkeeper == {}:
+        create_team_list(rounds["1"], idx_goalkeeper)
+    for match in match_round:
+        idx_goalkeeper[match["host"]][i_total] = idx_goals_defense[match["host"]][i_total] * \
+                                                 (idx_goals_attack[match["guest"]][i_total] ** 2) * \
+                                                 no_goals_received[match["host"]][i_total]
+
+        idx_goalkeeper[match["guest"]][i_total] = (idx_goals_defense[match["guest"]][i_total] ** 2) * \
+                                                  idx_goals_attack[match["host"]][i_total] * \
+                                                  no_goals_received[match["guest"]][i_total]
 
 
 def calc_idx_goals_defense(match_round):
@@ -310,6 +325,14 @@ def main():
     print("-- Melhores times para escalar Técnicos:")
     print("\n")
     print_sorted_table(idx_coach)
+
+    print("\n")
+    print("Calculando índice de goleiro...")
+    calc_idx_goalkeeper(next_round)
+    print("\n")
+    print("-- Melhores times para escalar Goleiro:")
+    print("\n")
+    print_sorted_table(idx_goalkeeper)
 
     print("\n")
     formation_analysis(4, 7)
