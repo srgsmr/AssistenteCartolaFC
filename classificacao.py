@@ -80,13 +80,24 @@ def calc_idx_goals_attack(match_round):
                                                     goals_suffered[match["host"]][i_home] / \
                                                     plays[match["host"]][i_home]
 
+    idx_sum = 0
+    for item in idx_goals_attack.items():
+        idx_sum += item[1][i_total]
+    for item in idx_goals_attack.items():
+        idx_goals_attack[item[0]][i_total] = item[1][i_total] / idx_sum
+
 
 def calc_idx_coach(match_round):
     """Calculate an index for each team combining attack and defense indexes to rank coaches for the round"""
     if idx_coach == {}:
         create_team_list(rounds["1"], idx_coach)
+    idx_sum = 0
     for team in plays.keys():
         idx_coach[team][i_total] = idx_goals_defense[team][i_total] * idx_goals_attack[team][i_total]
+        idx_sum += idx_coach[team][i_total]
+
+    for item in idx_coach.items():
+        idx_coach[item[0]][i_total] = item[1][i_total] / idx_sum
 
 
 def calc_idx_goalkeeper(match_round):
@@ -101,6 +112,13 @@ def calc_idx_goalkeeper(match_round):
         idx_goalkeeper[match["guest"]][i_total] = (idx_goals_defense[match["guest"]][i_total] ** 2) * \
                                                   idx_goals_attack[match["host"]][i_total] * \
                                                   no_goals_received[match["guest"]][i_total]
+    idx_sum = 0
+    for item in idx_goalkeeper.items():
+        idx_sum += item[1][i_total]
+    for item in idx_goalkeeper.items():
+        idx_goalkeeper[item[0]][i_total] = item[1][i_total] / idx_sum
+
+
 
 
 def calc_idx_goals_defense(match_round):
@@ -116,6 +134,12 @@ def calc_idx_goals_defense(match_round):
                                                            plays[match["guest"]][i_guest]) *
                                                     (goals_scored[match["host"]][i_home] / \
                                                             plays[match["host"]][i_home]))
+
+    idx_sum = 0
+    for item in idx_goals_defense.items():
+        idx_sum += item[1][i_total]
+    for item in idx_goals_defense.items():
+        idx_goals_defense[item[0]][i_total] = item[1][i_total] / idx_sum
 
 
 def count_goals_suffered():
@@ -276,7 +300,7 @@ def main():
     """ the main funtion :) """
 
     # load results from the first n rounds of league
-    num_round = 24
+    num_round = 25
     print("Lendo os resultados dos jogos das " + str(num_round) + " rodadas...")
     read_league_results(num_round)
 
@@ -301,7 +325,7 @@ def main():
     save_classification()
 
     print("Carregando jogos da próxima rodada...")
-    next_round = read_next_round_file('jogos_rodada25')
+    next_round = read_next_round_file('jogos_rodada26')
 
     print("Calculando índice de ataque baseado em gols...")
     calc_idx_goals_attack(next_round)
