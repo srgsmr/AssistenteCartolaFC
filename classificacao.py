@@ -126,13 +126,13 @@ def calc_idx_goals_defense(match_round):
     if idx_goals_defense == {}:
         create_team_list(rounds["1"], idx_goals_defense)
     for match in match_round:
-        idx_goals_defense[match["host"]][i_total] = 1 / ((goals_suffered[match["host"]][i_home] / \
+        idx_goals_defense[match["host"]][i_total] = 1 / ((goals_suffered[match["host"]][i_home] /
                                                           plays[match["host"]][i_home]) *
-                                                   (goals_scored[match["guest"]][i_guest]) / \
+                                                   (goals_scored[match["guest"]][i_guest]) /
                                                          plays[match["guest"]][i_guest])
-        idx_goals_defense[match["guest"]][i_total] = 1 / ((goals_suffered[match["guest"]][i_guest] / \
+        idx_goals_defense[match["guest"]][i_total] = 1 / ((goals_suffered[match["guest"]][i_guest] /
                                                            plays[match["guest"]][i_guest]) *
-                                                    (goals_scored[match["host"]][i_home] / \
+                                                    (goals_scored[match["host"]][i_home] /
                                                             plays[match["host"]][i_home]))
 
     idx_sum = 0
@@ -300,7 +300,7 @@ def main():
     """ the main funtion :) """
 
     # load results from the first n rounds of league
-    num_round = 26
+    num_round = 31
     print("Lendo os resultados dos jogos das " + str(num_round) + " rodadas...")
     read_league_results(num_round)
 
@@ -325,7 +325,7 @@ def main():
     save_classification()
 
     print("Carregando jogos da próxima rodada...")
-    next_round = read_next_round_file('jogos_rodada27')
+    next_round = read_next_round_file('jogos_rodada32')
 
     print("Calculando índice de ataque baseado em gols...")
     calc_idx_goals_attack(next_round)
