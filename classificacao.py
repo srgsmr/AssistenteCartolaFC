@@ -1,5 +1,9 @@
 from operator import itemgetter
 """itemgetter used to sort dictionary items"""
+import requests
+from bs4 import BeautifulSoup
+import json
+import pandas as pd
 
 # constants
 i_total = 0
@@ -294,13 +298,19 @@ def formation_analysis(defense, attack):
     print ("Pontos para " + str(defense) + " defensores e " + str(attack) + " atacantes: " + str(points))
     return points
 
+def read_cartolafc_athlets_api():
+    url = "https://api.cartolafc.globo.com/atletas/mercado"
+    r = requests.get(url)
+    data = json.loads(r.text)
+    #text = r.text
+    return data
 
 
 def main():
     """ the main funtion :) """
 
     # load results from the first n rounds of league
-    num_round = 31
+    num_round = 37
     print("Lendo os resultados dos jogos das " + str(num_round) + " rodadas...")
     read_league_results(num_round)
 
@@ -325,7 +335,7 @@ def main():
     save_classification()
 
     print("Carregando jogos da próxima rodada...")
-    next_round = read_next_round_file('jogos_rodada32')
+    next_round = read_next_round_file('jogos_rodada38')
 
     print("Calculando índice de ataque baseado em gols...")
     calc_idx_goals_attack(next_round)
@@ -362,5 +372,14 @@ def main():
     formation_analysis(3, 7)
     formation_analysis(4, 6.5)
 
+def main2():
+    atletas = read_cartolafc_athlets_api()
+    df_atletas = pd.DataFrame(atletas["atletas"])
+    print(df_atletas.head())
+    df_atletas.to_csv("Atletas.csv")
+    df_clubes = pd.DataFrame(atletas["clubes"])
+    print(df_clubes.head())
+    #for atleta in atletas["atletas"]:
+    #    print(str(atleta["atleta_id"]) + " " + atletas["clubes"][str(atleta["clube_id"])]["abreviacao"] + " " + atleta["apelido"] + " " + str(atleta["preco_num"]))
 
-main()
+main2()
