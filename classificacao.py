@@ -1,7 +1,7 @@
 from operator import itemgetter
 """itemgetter used to sort dictionary items"""
 import requests
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
 import json
 import pandas as pd
 
@@ -375,11 +375,31 @@ def main():
 def main2():
     atletas = read_cartolafc_athlets_api()
     df_atletas = pd.DataFrame(atletas["atletas"])
-    print(df_atletas.head())
+    df_atletas = df_atletas.set_index("atleta_id")
     df_atletas.to_csv("Atletas.csv")
     df_clubes = pd.DataFrame(atletas["clubes"])
-    print(df_clubes.head())
+    print(df_clubes)
+    df_status = pd.DataFrame(atletas["status"])
+    print(df_status)
+    df_posicoes = pd.DataFrame(atletas["posicoes"])
+    print(df_posicoes)
     #for atleta in atletas["atletas"]:
     #    print(str(atleta["atleta_id"]) + " " + atletas["clubes"][str(atleta["clube_id"])]["abreviacao"] + " " + atleta["apelido"] + " " + str(atleta["preco_num"]))
+    #print(df_atletas.info())
+
+    atletas_2017 = pd.read_csv("2017_scouts.csv", sep=";", encoding="cp860")
+    atletas_2017.columns = ["apelido", "atleta_id", "preco_txt", "preco"]
+    atletas_2017 = atletas_2017.set_index("atleta_id")
+    #print(atletas_2017.info())
+
+
+    df_comp = df_atletas.join(atletas_2017,  lsuffix="2018", rsuffix="2017")
+
+    df_comp["var_preco"] = df_comp["preco_txt"] / df_comp["preco_num"]
+    df_comp = df_comp[["apelido2018", "clube_id", "var_preco", "preco_txt", "preco_num", "status_id", "posicao_id"]]
+    df_comp = df_comp[df_comp["posicao_id"] == 6]
+    df_comp = df_comp[df_comp["status_id"] == 7]
+    print(df_comp.sort_values("var_preco", ascending=False))
+
 
 main2()
