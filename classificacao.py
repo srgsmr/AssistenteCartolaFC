@@ -301,7 +301,7 @@ def formation_analysis(defense, attack):
 def read_cartolafc_athlets_api():
     url = "https://api.cartolafc.globo.com/atletas/mercado"
     r = requests.get(url)
-    data = json.loads(r.text)
+    data = json.loads(r.text, encoding="cp860")
     #text = r.text
     return data
 
@@ -376,7 +376,7 @@ def main2():
     atletas = read_cartolafc_athlets_api()
     df_atletas = pd.DataFrame(atletas["atletas"])
     df_atletas = df_atletas.set_index("atleta_id")
-    df_atletas.to_csv("Atletas.csv")
+    df_atletas.to_csv("Atletas.csv", encoding="cp860")
     df_clubes = pd.DataFrame(atletas["clubes"])
     df_clubes["293"]["abreviacao"] = "ATP"  #adjust alias to avoid ambiguous identification
     #print(df_clubes)
@@ -404,14 +404,33 @@ def main2():
     #df_comp = df_comp[df_comp["posicao_id"] == 4]
     df_comp = df_comp[df_comp["status_id"] == 7]
     df_comp = df_comp[df_comp["team"].isin(["CRU", "VIT", "SAN", "AME", "VAS", "COR", "INT", "ATP", "BOT", "SAO"])]
+
     df_comp = df_comp.sort_values("var_preco", ascending=False)
-    df_best_var = df_comp[["apelido2018", "team", "pos", "var_preco", "preco_txt", "preco_num", "status", "posicao_id"]].head(15)
-    print(df_best_var.sort_values("posicao_id", ascending=False))
-    print(df_best_var["preco_num"].sum())
+    #df_best_var = df_comp[["apelido2018", "team", "pos", "var_preco", "preco_txt", "preco_num", "status", "posicao_id"]].head(15)
+    #print(df_best_var.sort_values("posicao_id", ascending=False))
+    #print(df_best_var["preco_num"].sum())
+
+    df_team1 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
+    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
+    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 4].head(3)) # 3 mei
+    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
+    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 3 lat
+    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
+    print(df_team1[["apelido2018", "team", "pos", "dif_preco", "preco_txt", "preco_num"]])
+    print(df_team1.sum())
 
     df_comp = df_comp.sort_values("dif_preco", ascending=False)
-    df_best_dif = df_comp[["apelido2018", "team", "pos", "dif_preco", "preco_txt", "preco_num", "status", "posicao_id"]].head(15)
-    print(df_best_dif.sort_values("posicao_id", ascending=False))
-    print(df_best_dif["preco_num"].sum())
+    #df_best_dif = df_comp[["apelido2018", "team", "pos", "dif_preco", "preco_txt", "preco_num", "status", "posicao_id"]].head(15)
+    #print(df_best_dif.sort_values("posicao_id", ascending=False))
+    #print(df_best_dif["preco_num"].sum())
+
+    df_team2 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
+    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
+    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 4].head(3)) # 3 mei
+    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
+    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 3 lat
+    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
+    print(df_team2[["apelido2018", "team", "pos", "dif_preco", "preco_txt", "preco_num"]])
+    print(df_team2.sum())
 
 main2()
