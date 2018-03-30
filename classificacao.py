@@ -378,11 +378,12 @@ def main2():
     df_atletas = df_atletas.set_index("atleta_id")
     df_atletas.to_csv("Atletas.csv")
     df_clubes = pd.DataFrame(atletas["clubes"])
-    print(df_clubes)
+    df_clubes["293"]["abreviacao"] = "ATP"  #adjust alias to avoid ambiguous identification
+    #print(df_clubes)
     df_status = pd.DataFrame(atletas["status"])
-    print(df_status)
+    #print(df_status)
     df_posicoes = pd.DataFrame(atletas["posicoes"])
-    print(df_posicoes)
+    #print(df_posicoes)
     #for atleta in atletas["atletas"]:
     #    print(str(atleta["atleta_id"]) + " " + atletas["clubes"][str(atleta["clube_id"])]["abreviacao"] + " " + atleta["apelido"] + " " + str(atleta["preco_num"]))
     #print(df_atletas.info())
@@ -396,10 +397,21 @@ def main2():
     df_comp = df_atletas.join(atletas_2017,  lsuffix="2018", rsuffix="2017")
 
     df_comp["var_preco"] = df_comp["preco_txt"] / df_comp["preco_num"]
-    df_comp = df_comp[["apelido2018", "clube_id", "var_preco", "preco_txt", "preco_num", "status_id", "posicao_id"]]
-    df_comp = df_comp[df_comp["posicao_id"] == 6]
+    df_comp["dif_preco"] = df_comp["preco_txt"] - df_comp["preco_num"]
+    df_comp["team"] = df_comp["clube_id"].apply(lambda x: df_clubes[str(x)]["abreviacao"])
+    df_comp["pos"] = df_comp["posicao_id"].apply(lambda x: df_posicoes[str(x)]["abreviacao"])
+    df_comp["status"] = df_comp["status_id"].apply(lambda x: df_status[str(x)]["nome"])
+    #df_comp = df_comp[df_comp["posicao_id"] == 4]
     df_comp = df_comp[df_comp["status_id"] == 7]
-    print(df_comp.sort_values("var_preco", ascending=False))
+    df_comp = df_comp[df_comp["team"].isin(["CRU", "VIT", "SAN", "AME", "VAS", "COR", "INT", "ATP", "BOT", "SAO"])]
+    df_comp = df_comp.sort_values("var_preco", ascending=False)
+    df_best_var = df_comp[["apelido2018", "team", "pos", "var_preco", "preco_txt", "preco_num", "status", "posicao_id"]].head(15)
+    print(df_best_var.sort_values("posicao_id", ascending=False))
+    print(df_best_var["preco_num"].sum())
 
+    df_comp = df_comp.sort_values("dif_preco", ascending=False)
+    df_best_dif = df_comp[["apelido2018", "team", "pos", "dif_preco", "preco_txt", "preco_num", "status", "posicao_id"]].head(15)
+    print(df_best_dif.sort_values("posicao_id", ascending=False))
+    print(df_best_dif["preco_num"].sum())
 
 main2()
