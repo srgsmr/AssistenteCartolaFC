@@ -1,9 +1,6 @@
-from operator import itemgetter
-"""itemgetter used to sort dictionary items"""
-import requests
-#from bs4 import BeautifulSoup
-import json
+from operator import itemgetter #itemgetter used to sort dictionary items
 import pandas as pd
+import cartolafc_api as cfc
 
 # constants
 i_total = 0
@@ -298,14 +295,6 @@ def formation_analysis(defense, attack):
     print ("Pontos para " + str(defense) + " defensores e " + str(attack) + " atacantes: " + str(points))
     return points
 
-def read_cartolafc_athlets_api():
-    url = "https://api.cartolafc.globo.com/atletas/mercado"
-    r = requests.get(url)
-    data = json.loads(r.text, encoding="cp860")
-    #text = r.text
-    return data
-
-
 def main():
     """ the main funtion :) """
 
@@ -373,7 +362,7 @@ def main():
     formation_analysis(4, 6.5)
 
 def main2():
-    atletas = read_cartolafc_athlets_api()
+    atletas = cfc.cartola_api.read_data()
     df_atletas = pd.DataFrame(atletas["atletas"])
     df_atletas = df_atletas.set_index("atleta_id")
     df_atletas.to_csv("data2018/Atletas.csv", encoding="cp860")
@@ -411,7 +400,7 @@ def main2():
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 3 lat
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
-    print(df_team1[["apelido2018", "team", "pos", "dif_preco", "preco_txt", "preco_num"]])
+    print(df_team1[["apelido2018", "team", "pos", "var_preco", "preco_txt", "preco_num"]])
     print(df_team1.sum())
 
     df_comp = df_comp.sort_values("dif_preco", ascending=False)
