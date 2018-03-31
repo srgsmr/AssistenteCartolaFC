@@ -363,6 +363,7 @@ def main():
 
 def main2():
     atletas = cfc.cartola_api.read_data()
+    print(cfc.cartola_api.save_rawdata())
     df_atletas = pd.DataFrame(atletas["atletas"])
     df_atletas = df_atletas.set_index("atleta_id")
     df_atletas.to_csv("data2018/Atletas.csv", encoding="cp860")
