@@ -376,7 +376,7 @@ def main2():
     atletas = read_cartolafc_athlets_api()
     df_atletas = pd.DataFrame(atletas["atletas"])
     df_atletas = df_atletas.set_index("atleta_id")
-    df_atletas.to_csv("Atletas.csv", encoding="cp860")
+    df_atletas.to_csv("data2018/Atletas.csv", encoding="cp860")
     df_clubes = pd.DataFrame(atletas["clubes"])
     df_clubes["293"]["abreviacao"] = "ATP"  #adjust alias to avoid ambiguous identification
     #print(df_clubes)
@@ -384,11 +384,9 @@ def main2():
     #print(df_status)
     df_posicoes = pd.DataFrame(atletas["posicoes"])
     #print(df_posicoes)
-    #for atleta in atletas["atletas"]:
-    #    print(str(atleta["atleta_id"]) + " " + atletas["clubes"][str(atleta["clube_id"])]["abreviacao"] + " " + atleta["apelido"] + " " + str(atleta["preco_num"]))
     #print(df_atletas.info())
 
-    atletas_2017 = pd.read_csv("2017_scouts.csv", sep=";", encoding="cp860")
+    atletas_2017 = pd.read_csv("data2018/2017_scouts.csv", sep=";", encoding="cp860")
     atletas_2017.columns = ["apelido", "atleta_id", "preco_txt", "preco"]
     atletas_2017 = atletas_2017.set_index("atleta_id")
     #print(atletas_2017.info())
@@ -406,9 +404,6 @@ def main2():
     df_comp = df_comp[df_comp["team"].isin(["CRU", "VIT", "SAN", "AME", "VAS", "COR", "INT", "ATP", "BOT", "SAO"])]
 
     df_comp = df_comp.sort_values("var_preco", ascending=False)
-    #df_best_var = df_comp[["apelido2018", "team", "pos", "var_preco", "preco_txt", "preco_num", "status", "posicao_id"]].head(15)
-    #print(df_best_var.sort_values("posicao_id", ascending=False))
-    #print(df_best_var["preco_num"].sum())
 
     df_team1 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
@@ -420,9 +415,6 @@ def main2():
     print(df_team1.sum())
 
     df_comp = df_comp.sort_values("dif_preco", ascending=False)
-    #df_best_dif = df_comp[["apelido2018", "team", "pos", "dif_preco", "preco_txt", "preco_num", "status", "posicao_id"]].head(15)
-    #print(df_best_dif.sort_values("posicao_id", ascending=False))
-    #print(df_best_dif["preco_num"].sum())
 
     df_team2 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
