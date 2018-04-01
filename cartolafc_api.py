@@ -1,5 +1,6 @@
 import requests
 import json
+from datetime import date
 
 class CartolaAPI:
     """ CartolaAPI - class to extract and handle data from the CartolaFC site """
@@ -14,16 +15,22 @@ class CartolaAPI:
         return self.data
 
 
-    def save_rawdata(self, filename=""):
+    def save_rawdata(self, filename="", foldername=""):
         """ saves data as readed to csv file"""
 
+        today = date.today()
+
+        if foldername == "":
+            foldername = "data" + str(today.year) + "/"
+
         if filename == "":
-            filename = "data2018/cartola.txt"
-        file = open(filename, 'w', encoding='utf8')
+            filename = "cartola" + str(today.isoformat()) + ".txt"
+
+        file = open(foldername + filename, 'w', encoding='utf8')
         file.write(json.dumps(self.data))
         file.close()
 
-        return filename
+        return (foldername+filename)
 
 
 cartola_api = CartolaAPI()
