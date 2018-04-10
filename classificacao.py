@@ -362,8 +362,11 @@ def main():
     formation_analysis(4, 6.5)
 
 def main2():
-    atletas = cfc.cartola_api.read_data()
-    print(cfc.cartola_api.save_rawdata())
+    #atletas = cfc.cartola_api.read_data()
+    if not cfc.cartola_api.load_rawdata("cartola2018-04-01.txt"):
+        return
+    atletas = cfc.cartola_api.data
+    #print(cfc.cartola_api.save_rawdata())
     df_atletas = pd.DataFrame(atletas["atletas"])
     df_atletas = df_atletas.set_index("atleta_id")
     df_atletas.to_csv("data2018/Atletas.csv", encoding="cp860")

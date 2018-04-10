@@ -32,5 +32,19 @@ class CartolaAPI:
 
         return (foldername+filename)
 
+    def load_rawdata(self, filename="", foldername=""):
+        """ loads data from csv file"""
+
+        if filename == "":
+            return False
+
+        if foldername == "":
+            today = date.today()
+            foldername = "data" + str(today.year) + "/"
+
+        with open(foldername + filename) as json_data:
+            self.data = json.load(json_data)
+            json_data.close()
+            return True
 
 cartola_api = CartolaAPI()
