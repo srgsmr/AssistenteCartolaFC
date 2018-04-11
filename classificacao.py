@@ -362,11 +362,11 @@ def main():
     formation_analysis(4, 6.5)
 
 def main2():
-    #atletas = cfc.cartola_api.read_data()
-    if not cfc.cartola_api.load_rawdata("cartola2018-04-01.txt"):
-        return
-    atletas = cfc.cartola_api.data
-    #print(cfc.cartola_api.save_rawdata())
+    atletas = cfc.cartola_api.read_data()
+    print(cfc.cartola_api.save_rawdata())
+    #if not cfc.cartola_api.load_rawdata("cartola2018-04-01.txt"):
+    #    return
+    #atletas = cfc.cartola_api.data
     df_atletas = pd.DataFrame(atletas["atletas"])
     df_atletas = df_atletas.set_index("atleta_id")
     df_atletas.to_csv("data2018/Atletas.csv", encoding="cp860")
@@ -392,9 +392,9 @@ def main2():
     df_comp["team"] = df_comp["clube_id"].apply(lambda x: df_clubes[str(x)]["abreviacao"])
     df_comp["pos"] = df_comp["posicao_id"].apply(lambda x: df_posicoes[str(x)]["abreviacao"])
     df_comp["status"] = df_comp["status_id"].apply(lambda x: df_status[str(x)]["nome"])
-    #df_comp = df_comp[df_comp["posicao_id"] == 4]
-    df_comp = df_comp[df_comp["status_id"] == 7]
-    df_comp = df_comp[df_comp["team"].isin(["CRU", "VIT", "SAN", "AME", "VAS", "COR", "INT", "ATP", "BOT", "SAO"])]
+    #df_comp = df_comp[df_comp.team.isin(["CRU", "VIT", "SAN", "AME", "VAS", "COR", "INT", "ATP", "BOT", "SAO"])]
+    df_matches = pd.DataFrame(cfc.cartola_api.read_rounddata()["partidas"])
+    df_comp = df_comp[df_comp.clube_id.isin(df_matches["clube_casa_id"])]
 
     df_comp = df_comp.sort_values("var_preco", ascending=False)
 
@@ -402,7 +402,7 @@ def main2():
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 4].head(3)) # 3 mei
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
-    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 3 lat
+    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 2 lat
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
     print(df_team1[["apelido2018", "team", "pos", "var_preco", "preco_txt", "preco_num"]])
     print(df_team1.sum())
@@ -413,9 +413,14 @@ def main2():
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 4].head(3)) # 3 mei
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
-    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 3 lat
+    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 2 lat
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
     print(df_team2[["apelido2018", "team", "pos", "dif_preco", "preco_txt", "preco_num"]])
     print(df_team2.sum())
+
+def main3():
+    df_matches = pd.DataFrame(cfc.cartola_api.read_rounddata()["partidas"])
+    print(df_matches[["clube_casa_id", "clube_visitante_id", "partida_data", "local"]])
+    print(df_matches["clube_casa_id"])
 
 main2()
