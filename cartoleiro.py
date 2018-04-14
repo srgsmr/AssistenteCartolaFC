@@ -7,6 +7,15 @@ class Cartoleiro:
     next_round = None
     rounds = None
 
+    def __init__(self):
+        self.teams_table = self.read_teams()
+
+    def read_teams(self):
+        df_teams = pd.DataFrame(cartola_api.read_rounddata()["clubes"]).T
+        df_teams.loc['293'].abreviacao = "ATP"
+        #df_teams["293"]["abreviacao"] = "ATP"  # adjust alias to avoid ambiguous identification
+        return df_teams
+
     def read_next_round(self):
         self.next_round = pd.DataFrame(cartola_api.read_rounddata()['partidas'])
 

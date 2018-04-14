@@ -1,6 +1,6 @@
 from operator import itemgetter #itemgetter used to sort dictionary items
 import pandas as pd
-import cartolafc_api as cfc
+from cartolafc_api import cartola_api
 import cartoleiro
 
 # constants
@@ -363,17 +363,15 @@ def main():
     formation_analysis(4, 6.5)
 
 def main2():
-    atletas = cfc.cartola_api.read_data()
-    print(cfc.cartola_api.save_rawdata())
+    atletas = cartola_api.read_data()
+    print(cartola_api.save_rawdata())
     #if not cfc.cartola_api.load_rawdata("cartola2018-04-01.txt"):
     #    return
     #atletas = cfc.cartola_api.data
     df_atletas = pd.DataFrame(atletas["atletas"])
     df_atletas = df_atletas.set_index("atleta_id")
     df_atletas.to_csv("data2018/Atletas.csv", encoding="cp860")
-    df_clubes = pd.DataFrame(atletas["clubes"])
-    df_clubes["293"]["abreviacao"] = "ATP"  #adjust alias to avoid ambiguous identification
-    #print(df_clubes)
+
     df_status = pd.DataFrame(atletas["status"])
     #print(df_status)
     df_posicoes = pd.DataFrame(atletas["posicoes"])
@@ -390,11 +388,13 @@ def main2():
 
     df_comp["var_preco"] = df_comp["preco_txt"] / df_comp["preco_num"]
     df_comp["dif_preco"] = df_comp["preco_txt"] - df_comp["preco_num"]
-    df_comp["team"] = df_comp["clube_id"].apply(lambda x: df_clubes[str(x)]["abreviacao"])
+
+    cart = cartoleiro.Cartoleiro()
+    df_comp["team"] = df_comp["clube_id"].apply(lambda x: cart.teams_table.loc[str(x)].abreviacao)
     df_comp["pos"] = df_comp["posicao_id"].apply(lambda x: df_posicoes[str(x)]["abreviacao"])
     df_comp["status"] = df_comp["status_id"].apply(lambda x: df_status[str(x)]["nome"])
     #df_comp = df_comp[df_comp.team.isin(["CRU", "VIT", "SAN", "AME", "VAS", "COR", "INT", "ATP", "BOT", "SAO"])]
-    df_matches = pd.DataFrame(cfc.cartola_api.read_rounddata()["partidas"])
+    df_matches = pd.DataFrame(cartola_api.read_rounddata()["partidas"])
     df_comp = df_comp[df_comp.clube_id.isin(df_matches["clube_casa_id"])]
     df_comp = df_comp[df_comp.status_id == 7]
 
@@ -423,7 +423,9 @@ def main2():
 
 def main3():
     cart = cartoleiro.Cartoleiro()
-    cart.read_next_round()
-    print(cart.next_round)
+    # cart.read_next_round()
+    # print(cart.next_round)
+    #print(pd.DataFrame(cart.read_teams()['327']).T.append(pd.DataFrame(cart.read_teams()['284']).T))
+    print(cart.teams_table.loc["327"].abreviacao)
 
 main2()
