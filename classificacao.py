@@ -395,8 +395,10 @@ def main2():
     #df_comp = df_comp[df_comp.team.isin(["CRU", "VIT", "SAN", "AME", "VAS", "COR", "INT", "ATP", "BOT", "SAO"])]
     df_matches = pd.DataFrame(cfc.cartola_api.read_rounddata()["partidas"])
     df_comp = df_comp[df_comp.clube_id.isin(df_matches["clube_casa_id"])]
+    df_comp = df_comp[df_comp.status_id == 7]
 
     df_comp = df_comp.sort_values("var_preco", ascending=False)
+    #print(df_comp.head(15))
 
     df_team1 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
