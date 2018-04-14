@@ -1,6 +1,7 @@
 from operator import itemgetter #itemgetter used to sort dictionary items
 import pandas as pd
 import cartolafc_api as cfc
+import cartoleiro
 
 # constants
 i_total = 0
@@ -421,8 +422,8 @@ def main2():
     print(df_team2.sum())
 
 def main3():
-    df_matches = pd.DataFrame(cfc.cartola_api.read_rounddata()["partidas"])
-    print(df_matches[["clube_casa_id", "clube_visitante_id", "partida_data", "local"]])
-    print(df_matches["clube_casa_id"])
+    cart = cartoleiro.Cartoleiro()
+    cart.read_next_round()
+    print(cart.next_round)
 
 main2()
