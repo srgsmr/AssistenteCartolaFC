@@ -10,6 +10,7 @@ class Cartoleiro:
     def __init__(self):
         self.teams_table = self.read_teams()
 
+    @classmethod
     def read_teams(self):
         df_teams = pd.DataFrame(cartola_api.read_rounddata()["clubes"]).T
         df_teams.loc['293'].abreviacao = "ATP"
