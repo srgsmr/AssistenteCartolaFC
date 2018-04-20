@@ -8,6 +8,7 @@ class Cartoleiro:
 
     next_round = None
     rounds = None
+    scout_table = pd.DataFrame()
 
     def __init__(self):
         """ init teams data reading teams data from CartolaAPI """
@@ -30,3 +31,28 @@ class Cartoleiro:
         self.next_round = self.next_round[['clube_casa_id', 'clube_visitante_id', 'local', 'partida_data',
                                            'partida_id', 'placar_oficial_mandante', 'placar_oficial_visitante',
                                            'url_confronto', 'url_transmissao', 'valida']]
+
+
+    def update_scout(self):
+        df_atletas = pd.DataFrame(cartola_api.read_data()['atletas'])
+        #scouts = pd.DataFrame()
+        l = []
+        for index, atleta in df_atletas.iterrows():
+            d = atleta['scout']
+            d['atleta_id'] = atleta['atleta_id']
+            d['rodada_id'] = atleta['rodada_id']
+            d['apelido'] = atleta['apelido']
+            d['clube_id'] = atleta['clube_id']
+            d['jogos_num'] = atleta['jogos_num']
+            d['media_num'] = atleta['media_num']
+            d['pontos_num'] = atleta['pontos_num']
+            d['posicao_id'] = atleta['posicao_id']
+            d['preco_num'] = atleta['preco_num']
+            d['status_id'] = atleta['status_id']
+            d['variacao_num'] = atleta['variacao_num']
+            l.append(d)
+        self.scout_table = self.scout_table.append(l)
+
+        self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
+        self.scout_table.to_csv("data2018/scout_table.csv")
+        return self.scout_table
