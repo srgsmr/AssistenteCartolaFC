@@ -390,7 +390,7 @@ def main2():
     df_comp["dif_preco"] = df_comp["preco_txt"] - df_comp["preco_num"]
 
     cart = cartoleiro.Cartoleiro()
-    df_comp["team"] = df_comp["clube_id"].apply(lambda x: cart.teams_table.loc[str(x)].abreviacao)
+    df_comp["team"] = df_comp["clube_id"].apply(lambda x: cart.df_teams.loc[str(x)].abreviacao)
     df_comp["pos"] = df_comp["posicao_id"].apply(lambda x: df_posicoes[str(x)]["abreviacao"])
     df_comp["status"] = df_comp["status_id"].apply(lambda x: df_status[str(x)]["nome"])
     #df_comp = df_comp[df_comp.team.isin(["CRU", "VIT", "SAN", "AME", "VAS", "COR", "INT", "ATP", "BOT", "SAO"])]
@@ -426,8 +426,8 @@ def main3():
     # cart.read_next_round()
     # print(cart.next_round)
     #print(pd.DataFrame(cart.read_teams()['327']).T.append(pd.DataFrame(cart.read_teams()['284']).T))
-    #print(cart.update_scout().tail())
-    df = pd.read_csv("data2018/scout_table.csv")
-    print(df[df.jogos_num > 0].sort_values(by='pontos_num',ascending=False).tail())
+    #print(cart.update_scout().info())
+    df = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
+    print(df[df.jogos_num > 0].sort_values(by='pontos_num',ascending=False))
 
-main3()
+main2()

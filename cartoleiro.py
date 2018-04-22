@@ -2,6 +2,26 @@ import pandas as pd
 
 from cartolafc_api import cartola_api
 
+# Scouts and points
+#
+#   A   5.0     Assitencia
+#   CA  -2.0    Cartao amarelo
+#   CV  -5.0    Cartao vermelho
+#   DD  3.0     Defesa dificil (somente goleiro)
+#   FC  -0.5    Falta cometida
+#   FD  1.2     Finalizacao Defendida
+#   FF  0.8     Finalizacao para Fora
+#   FS  0.5     Falta sofrida
+#   FT  3.0     Finalizacao na Trave
+#   G   8.0     Gol
+#   GC  -5.0    Gol Contra
+#   GS  -2.0    Gol Sofrido (somente goleiro)
+#   I   -0.5    Impedimento
+#   PE  -0.3    Passe errado
+#   RB  1.5     Roubada de Bola
+#   SG  5.0     Jogo Sem sofrer Gol
+#   ??  -4.0    Penalti perdido
+#   ??  7.0     Defesa de penalti
 
 class Cartoleiro:
     """ Cartoleiro - encapsulate teams and players stats for team building """
@@ -12,16 +32,16 @@ class Cartoleiro:
 
     def __init__(self):
         """ init teams data reading teams data from CartolaAPI """
-        self.teams_table = self.read_teams()
+        self.df_teams = self.read_teams()
 
     @classmethod
     def read_teams(self):
         """ reads teams data from CartolaAPI to a DataFrame
         :return: DataFrame with all teams from the championship
         """
-        df_teams = pd.DataFrame(cartola_api.read_rounddata()["clubes"]).T
-        df_teams.loc['293'].abreviacao = "CAP"  # adjust alias to avoid ambiguous identification
-        return df_teams
+        df = pd.DataFrame(cartola_api.read_rounddata()["clubes"]).T
+        df.loc['293'].abreviacao = "CAP"  # adjust alias to avoid ambiguous identification
+        return df
 
     def read_next_round(self):
         """ extract matches from the next round to next_round DataFrame """
@@ -54,5 +74,5 @@ class Cartoleiro:
         self.scout_table = self.scout_table.append(l)
 
         self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
-        self.scout_table.to_csv("data2018/scout_table.csv")
+        self.scout_table.to_csv("data2018/scout_table.csv", encoding='utf_16')
         return self.scout_table
