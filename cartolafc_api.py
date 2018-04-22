@@ -20,10 +20,11 @@ class CartolaAPI:
 
         #ro = int(r)
         if (r >= 1) and (r <= 38):
-            strround = str(round)
+            strround = str(r)
         else:
             strround = ""
 
+        url = self.urlmatches+strround
         r = requests.get(self.urlmatches+strround)
         self.matchesdata = json.loads(r.text)
         return self.matchesdata

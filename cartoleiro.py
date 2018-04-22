@@ -29,6 +29,7 @@ class Cartoleiro:
     next_round = None
     rounds = None
     scout_table = pd.DataFrame()
+    rounds_table = pd.DataFrame()
 
     def __init__(self):
         """ init teams data reading teams data from CartolaAPI """
@@ -76,3 +77,13 @@ class Cartoleiro:
         self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
         self.scout_table.to_csv("data2018/scout_table.csv", encoding='utf_16')
         return self.scout_table
+
+    def read_last_round(self):
+        if self.rounds_table.shape[0] == 0:
+            round = 1
+        else:
+            round = self.rounds_table['rodada_id'].max() + 1
+        df = pd.DataFrame(cartola_api.read_rounddata(1)['partidas'])
+        df['rodada_id'] = 1
+        self.rounds_table = self.rounds_table.append(df)
+        return self.rounds_table

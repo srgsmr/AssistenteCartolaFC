@@ -427,7 +427,8 @@ def main3():
     # print(cart.next_round)
     #print(pd.DataFrame(cart.read_teams()['327']).T.append(pd.DataFrame(cart.read_teams()['284']).T))
     #print(cart.update_scout().info())
-    df = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
-    print(df[df.jogos_num > 0].sort_values(by='pontos_num',ascending=False))
+    #df = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
+    #print(df[df.jogos_num > 0].sort_values(by='pontos_num',ascending=False))
+    print(cart.read_last_round())
 
-main2()
+main3()
