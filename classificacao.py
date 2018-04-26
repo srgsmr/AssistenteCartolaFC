@@ -388,6 +388,7 @@ def main2():
 
     df_comp["var_preco"] = df_comp["preco_txt"] / df_comp["preco_num"]
     df_comp["dif_preco"] = df_comp["preco_txt"] - df_comp["preco_num"]
+    df_comp["media_var_preco"] = df_comp["var_preco"] * df_comp["media_num"]
 
     cart = cartoleiro.Cartoleiro()
     df_comp["team"] = df_comp["clube_id"].apply(lambda x: cart.df_teams.loc[str(x)].abreviacao)
@@ -397,8 +398,9 @@ def main2():
     df_matches = pd.DataFrame(cartola_api.read_rounddata()["partidas"])
     df_comp = df_comp[df_comp.clube_id.isin(df_matches["clube_casa_id"])]
     df_comp = df_comp[df_comp.status_id == 7]
+    print(df_comp["team"].unique())
 
-    df_comp = df_comp.sort_values("var_preco", ascending=False)
+    df_comp = df_comp.sort_values("media_var_preco", ascending=False)
     #print(df_comp.head(15))
 
     df_team1 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
@@ -407,8 +409,8 @@ def main2():
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 2 lat
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
-    print(df_team1[["apelido2018", "team", "pos", "var_preco", "preco_txt", "preco_num"]])
-    print(df_team1.sum())
+    print(df_team1[["apelido2018", "team", "pos", "media_num", "preco_txt", "preco_num"]])
+    print(df_team1[['preco_num','dif_preco']].sum())
 
     df_comp = df_comp.sort_values("dif_preco", ascending=False)
 
@@ -418,8 +420,9 @@ def main2():
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 2 lat
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
-    print(df_team2[["apelido2018", "team", "pos", "dif_preco", "preco_txt", "preco_num"]])
-    print(df_team2.sum())
+    print(df_team2[["apelido2018", "team", "pos", "dif_preco", "media_num", "preco_num"]])
+    print(df_team2[['preco_num','dif_preco']].sum())
+    print(df_team2.columns)
 
 def main3():
     cart = cartoleiro.Cartoleiro()
@@ -431,4 +434,4 @@ def main3():
     #print(df[df.jogos_num > 0].sort_values(by='pontos_num',ascending=False))
     print(cart.read_last_round())
 
-main3()
+main2()
