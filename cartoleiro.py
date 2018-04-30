@@ -34,6 +34,8 @@ class Cartoleiro:
     def __init__(self):
         """ init teams data reading teams data from CartolaAPI """
         self.df_teams = self.read_teams()
+        self.read_last_round()
+        self.read_last_round()
 
     @classmethod
     def read_teams(self):
@@ -83,7 +85,8 @@ class Cartoleiro:
             round = 1
         else:
             round = self.rounds_table['rodada_id'].max() + 1
-        df = pd.DataFrame(cartola_api.read_rounddata(1)['partidas'])
-        df['rodada_id'] = 1
+        df = pd.DataFrame(cartola_api.read_rounddata(round)['partidas'])
+        df['rodada_id'] = round
         self.rounds_table = self.rounds_table.append(df)
+        self.rounds_table.to_csv("data2018/rounds_table.csv", encoding='utf_16')
         return self.rounds_table

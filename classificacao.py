@@ -398,6 +398,7 @@ def main2():
     df_matches = pd.DataFrame(cartola_api.read_rounddata()["partidas"])
     df_comp = df_comp[df_comp.clube_id.isin(df_matches["clube_casa_id"])]
     df_comp = df_comp[df_comp.status_id == 7]
+    print(df_comp.columns)
     print(df_comp["team"].unique())
 
     df_comp = df_comp.sort_values("media_var_preco", ascending=False)
@@ -409,7 +410,7 @@ def main2():
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 2 lat
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
-    print(df_team1[["apelido2018", "team", "pos", "media_num", "preco_txt", "preco_num"]])
+    print(df_team1[["apelido2018", "team", "pos", "media_num", "preco_num", "preco_txt"]])
     print(df_team1[['preco_num','dif_preco']].sum())
 
     df_comp = df_comp.sort_values("dif_preco", ascending=False)
@@ -420,9 +421,8 @@ def main2():
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 2 lat
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
-    print(df_team2[["apelido2018", "team", "pos", "dif_preco", "media_num", "preco_num"]])
+    print(df_team2[["apelido2018", "team", "pos", "media_num", "preco_num", "dif_preco"]])
     print(df_team2[['preco_num','dif_preco']].sum())
-    print(df_team2.columns)
 
 def main3():
     cart = cartoleiro.Cartoleiro()
@@ -432,6 +432,6 @@ def main3():
     #print(cart.update_scout().info())
     #df = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
     #print(df[df.jogos_num > 0].sort_values(by='pontos_num',ascending=False))
-    print(cart.read_last_round())
+    print(cart.rounds_table)
 
-main2()
+main3()
