@@ -30,12 +30,15 @@ class Cartoleiro:
     rounds = None
     scout_table = pd.DataFrame()
     rounds_table = pd.DataFrame()
+    ranking = pd.DataFrame()
 
     def __init__(self):
         """ init teams data reading teams data from CartolaAPI """
         self.df_teams = self.read_teams()
-        self.read_last_round()
-        self.read_last_round()
+        self.scout_table = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
+        self.rounds_table = pd.read_csv("data2018/rounds_table.csv", encoding='utf_16')
+        #self.read_last_round()
+        #self.read_last_round()
 
     @classmethod
     def read_teams(self):
@@ -57,10 +60,13 @@ class Cartoleiro:
 
 
     def update_scout(self):
-        df_atletas = pd.DataFrame(cartola_api.read_data()['atletas'])
-        #scouts = pd.DataFrame()
+
+        #df_atletas = pd.DataFrame(cartola_api.read_data()['atletas'])
+        cartola_api.load_rawdata("cartola2018-04-28.txt")
+        df_atletas = pd.DataFrame(cartola_api.data['atletas'])
         l = []
         for index, atleta in df_atletas.iterrows():
+            #d = {}
             d = atleta['scout']
             d['atleta_id'] = atleta['atleta_id']
             d['rodada_id'] = atleta['rodada_id']
@@ -74,13 +80,14 @@ class Cartoleiro:
             d['status_id'] = atleta['status_id']
             d['variacao_num'] = atleta['variacao_num']
             l.append(d)
+        self.scout_table = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
         self.scout_table = self.scout_table.append(l)
 
         self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
-        self.scout_table.to_csv("data2018/scout_table.csv", encoding='utf_16')
+        self.scout_table.to_csv("data2018/scout_table2.csv", encoding='utf_16')
         return self.scout_table
 
-    def read_last_round(self):
+    def update_rounds(self):
         if self.rounds_table.shape[0] == 0:
             round = 1
         else:
@@ -90,3 +97,77 @@ class Cartoleiro:
         self.rounds_table = self.rounds_table.append(df)
         self.rounds_table.to_csv("data2018/rounds_table.csv", encoding='utf_16')
         return self.rounds_table
+
+    def calc_ranking(self, top_score = 3):
+        self.ranking = self.df_teams[["abreviacao", "id", "nome"]]
+        self.ranking.set_index("id")
+        self.ranking["host_matches"] = 0.0
+        self.ranking["guest_matches"] = 0.0
+        self.ranking["host_scored"] = 0.0
+        self.ranking["guest_scored"] = 0.0
+        self.ranking["host_suffered"] = 0.0
+        self.ranking["guest_suffered"] = 0.0
+        self.ranking["host_nogoals_suf"] = 0.0
+        self.ranking["guest_nogoals_suf"] = 0.0
+
+        for team_id in self.df_teams[["id"]].get_values():
+            id = str(team_id[0])
+            df_host = self.rounds_table.loc[self.rounds_table["clube_casa_id"] == team_id[0]]
+            df_guest = self.rounds_table.loc[self.rounds_table["clube_visitante_id"] == team_id[0]]
+            self.ranking.loc[id, "host_matches"] = df_host["clube_casa_id"].count()
+            self.ranking.loc[id, "guest_matches"] = df_guest["clube_visitante_id"].count()
+            self.ranking.loc[id, "host_scored"] = df_host["placar_oficial_mandante"].sum()
+            self.ranking.loc[id, "guest_scored"] = df_guest["placar_oficial_visitante"].sum()
+            self.ranking.loc[id, "host_suffered"] = df_host["placar_oficial_visitante"].sum()
+            self.ranking.loc[id, "guest_suffered"] = df_guest["placar_oficial_mandante"].sum()
+            self.ranking.loc[id, "host_nogoals_suf"] = df_host[df_host["placar_oficial_visitante"] == 0] \
+                ["clube_casa_id"].count()
+            self.ranking.loc[id, "guest_nogoals_suf"] = df_guest[df_guest["placar_oficial_mandante"] == 0] \
+                ["clube_visitante_id"].count()
+            self.ranking.loc[id, "host_topscore"] = df_host[df_host["placar_oficial_mandante"] >= top_score] \
+                ["clube_casa_id"].count()
+            self.ranking.loc[id, "guest_topscore"] = df_guest[df_guest["placar_oficial_visitante"] >= top_score] \
+                ["clube_visitante_id"].count()
+            df_host["points"] = df_host[df_host["placar_oficial_mandante"] == df_host["placar_oficial_visitante"]] \
+                                ["clube_casa_id"].count() + \
+                                df_host[df_host["placar_oficial_mandante"] > df_host["placar_oficial_visitante"]] \
+                                ["clube_casa_id"].count() * 3
+            self.ranking.loc[id, "host_points"] = df_host["points"].sum()
+            df_guest["points"] = df_guest[df_guest["placar_oficial_mandante"] == df_guest["placar_oficial_visitante"]] \
+                                ["clube_casa_id"].count() + \
+                                 df_guest[df_guest["placar_oficial_mandante"] < df_guest["placar_oficial_visitante"]] \
+                                ["clube_casa_id"].count() * 3
+            self.ranking.loc[id, "guest_points"] = df_guest["points"].sum()
+
+        self.ranking["total_matches"] = self.ranking["host_matches"] + self.ranking["guest_matches"]
+        self.ranking["total_scored"] = self.ranking["host_scored"] + self.ranking["guest_scored"]
+        self.ranking["total_suffered"] = self.ranking["host_suffered"] + self.ranking["guest_suffered"]
+        self.ranking["total_nogoals_suf"] = self.ranking["host_nogoals_suf"] + self.ranking["guest_nogoals_suf"]
+        self.ranking["total_topscore"] = self.ranking["host_topscore"] + self.ranking["guest_topscore"]
+        self.ranking["total_points"] = self.ranking["host_points"] + self.ranking["guest_points"]
+        self.ranking = self.ranking.sort_values("total_points", ascending=False)
+        #print(self.ranking)
+
+    def calc_round_indexes(self):
+        self.read_next_round()
+        self.indexes = self.df_teams[["abreviacao", "id", "nome"]]
+        self.indexes.set_index("id")
+        self.indexes["attack"] = None
+
+        for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
+            #print("Mandante: " + str(host) + " Visitante: " + str(guest))
+            host = str(host_id)
+            guest = str(guest_id)
+            self.indexes.loc[host, "attack"] = self.ranking.loc[host, "host_scored"] / \
+                                               self.ranking.loc[host, "host_matches"] * \
+                                               self.ranking.loc[guest, "guest_suffered"] / \
+                                               self.ranking.loc[guest, "guest_matches"]
+            self.indexes.loc[guest, "attack"] = self.ranking.loc[guest, "guest_scored"] / \
+                                               self.ranking.loc[guest, "guest_matches"] * \
+                                               self.ranking.loc[host, "host_suffered"] / \
+                                               self.ranking.loc[host, "host_matches"]
+        total = self.indexes["attack"].sum()
+        self.indexes["attack"] = self.indexes["attack"] / total
+
+        print(self.indexes.sort_values("attack", ascending=False))
+
