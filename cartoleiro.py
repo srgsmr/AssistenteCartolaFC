@@ -61,8 +61,7 @@ class Cartoleiro:
 
     def update_scout(self):
 
-        #df_atletas = pd.DataFrame(cartola_api.read_data()['atletas'])
-        cartola_api.load_rawdata("cartola2018-04-28.txt")
+        df_atletas = pd.DataFrame(cartola_api.read_data()['atletas'])
         df_atletas = pd.DataFrame(cartola_api.data['atletas'])
         l = []
         for index, atleta in df_atletas.iterrows():
@@ -84,7 +83,7 @@ class Cartoleiro:
         self.scout_table = self.scout_table.append(l)
 
         self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
-        self.scout_table.to_csv("data2018/scout_table2.csv", encoding='utf_16')
+        self.scout_table.to_csv("data2018/scout_table.csv", encoding='utf_16')
         return self.scout_table
 
     def update_rounds(self):
@@ -153,9 +152,10 @@ class Cartoleiro:
         self.indexes = self.df_teams[["abreviacao", "id", "nome"]]
         self.indexes.set_index("id")
         self.indexes["attack"] = None
+        self.indexes["defense"] = 0.0
 
         for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
-            #print("Mandante: " + str(host) + " Visitante: " + str(guest))
+            print("Mandante: " + str(host_id) + " Visitante: " + str(guest_id))
             host = str(host_id)
             guest = str(guest_id)
             self.indexes.loc[host, "attack"] = self.ranking.loc[host, "host_scored"] / \
@@ -166,8 +166,18 @@ class Cartoleiro:
                                                self.ranking.loc[guest, "guest_matches"] * \
                                                self.ranking.loc[host, "host_suffered"] / \
                                                self.ranking.loc[host, "host_matches"]
+            self.indexes.loc[host, "defense"] = 1 / (self.ranking.loc[host, "host_suffered"] / \
+                                           self.ranking.loc[host, "host_matches"] * \
+                                           self.ranking.loc[guest, "guest_scored"] / \
+                                           self.ranking.loc[guest, "guest_matches"])
+            self.indexes.loc[guest, "defense"] = 1 / (self.ranking.loc[guest, "guest_suffered"] / \
+                                            self.ranking.loc[guest, "guest_matches"] * \
+                                            self.ranking.loc[host, "host_scored"] / \
+                                            self.ranking.loc[host, "host_matches"])
         total = self.indexes["attack"].sum()
-        self.indexes["attack"] = self.indexes["attack"] / total
+        self.indexes["idx_attack"] = self.indexes["attack"] / total
+        total = self.indexes["defense"].replace([float('inf')],[0]).sum()
+        self.indexes["idx_defense"] = self.indexes["defense"] / total
 
-        print(self.indexes.sort_values("attack", ascending=False))
+        print(self.indexes.sort_values("idx_defense", ascending=False))
 
