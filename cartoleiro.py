@@ -153,31 +153,42 @@ class Cartoleiro:
         self.indexes.set_index("id")
         self.indexes["attack"] = None
         self.indexes["defense"] = 0.0
+        self.indexes["goalkeeper"] = 0.0
 
         for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
             print("Mandante: " + str(host_id) + " Visitante: " + str(guest_id))
             host = str(host_id)
             guest = str(guest_id)
-            self.indexes.loc[host, "attack"] = self.ranking.loc[host, "host_scored"] / \
-                                               self.ranking.loc[host, "host_matches"] * \
-                                               self.ranking.loc[guest, "guest_suffered"] / \
-                                               self.ranking.loc[guest, "guest_matches"]
-            self.indexes.loc[guest, "attack"] = self.ranking.loc[guest, "guest_scored"] / \
-                                               self.ranking.loc[guest, "guest_matches"] * \
-                                               self.ranking.loc[host, "host_suffered"] / \
-                                               self.ranking.loc[host, "host_matches"]
-            self.indexes.loc[host, "defense"] = 1 / (self.ranking.loc[host, "host_suffered"] / \
+            self.indexes.loc[host, "attack"] = (max(0.5, self.ranking.loc[host, "host_scored"]) / \
+                                               self.ranking.loc[host, "host_matches"]) * \
+                                               (max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
+                                               self.ranking.loc[guest, "guest_matches"])
+            self.indexes.loc[guest, "attack"] = (max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
+                                               self.ranking.loc[guest, "guest_matches"]) * \
+                                                (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
+                                               self.ranking.loc[host, "host_matches"])
+            self.indexes.loc[host, "defense"] = 1 / (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
                                            self.ranking.loc[host, "host_matches"] * \
-                                           self.ranking.loc[guest, "guest_scored"] / \
+                                           max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
                                            self.ranking.loc[guest, "guest_matches"])
-            self.indexes.loc[guest, "defense"] = 1 / (self.ranking.loc[guest, "guest_suffered"] / \
+            self.indexes.loc[guest, "defense"] = 1 / (max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
                                             self.ranking.loc[guest, "guest_matches"] * \
-                                            self.ranking.loc[host, "host_scored"] / \
+                                            max(0.5, self.ranking.loc[host, "host_scored"]) / \
                                             self.ranking.loc[host, "host_matches"])
+            self.indexes.loc[host, "goalkeeper"] = self.indexes.loc[host, "defense"] * \
+                                                   (self.indexes.loc[guest, "attack"] ** 2) * \
+                                                   max(0.1, self.ranking.loc[host, "total_nogoals_suf"])
+            self.indexes.loc[guest, "goalkeeper"] = self.indexes.loc[guest, "defense"] * \
+                                                   (self.indexes.loc[host, "attack"] ** 2) * \
+                                                   max(0.1, self.ranking.loc[guest, "total_nogoals_suf"])
+
         total = self.indexes["attack"].sum()
         self.indexes["idx_attack"] = self.indexes["attack"] / total
         total = self.indexes["defense"].replace([float('inf')],[0]).sum()
         self.indexes["idx_defense"] = self.indexes["defense"] / total
+        total = self.indexes["goalkeeper"].sum()
+        self.indexes["idx_goalkeeper"] = self.indexes["goalkeeper"] / total
+        self.indexes["idx_coach"] = (self.indexes["idx_attack"] + self.indexes["idx_defense"])/2
 
-        print(self.indexes.sort_values("idx_defense", ascending=False))
+        print(self.indexes.sort_values("idx_coach", ascending=False))
 
