@@ -190,5 +190,17 @@ class Cartoleiro:
         self.indexes["idx_goalkeeper"] = self.indexes["goalkeeper"] / total
         self.indexes["idx_coach"] = (self.indexes["idx_attack"] + self.indexes["idx_defense"])/2
 
-        print(self.indexes.sort_values("idx_coach", ascending=False))
+        #print(self.indexes.sort_values("idx_coach", ascending=False))
 
+    def select_players(self, df_players, position, idx, min_price, max_price):
+        df_pos = df_players[df_players.posicao_id == position]
+        df_pos = df_pos[df_pos.jogos_num >= 3]
+        df_pos = df_pos[df_pos.preco_num >= min_price]
+        df_pos = df_pos[df_pos.preco_num <= max_price]
+
+        df_pos = df_pos.set_index("clube_id")
+        df_idx = self.indexes.set_index("id")
+        df_pos = df_pos.join(df_idx, lsuffix="player", rsuffix="team")
+        df_pos["pos_pts"] = df_pos["media_num"] * df_pos[idx]
+        df_pos = df_pos.sort_values("pos_pts", ascending=False)
+        return df_pos

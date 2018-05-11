@@ -384,26 +384,46 @@ def main2():
     #print(atletas_2017.info())
 
 
-    df_comp = df_atletas.join(atletas_2017,  lsuffix="2018", rsuffix="2017")
+    df_comp = df_atletas#.join(atletas_2017,  lsuffix="2018", rsuffix="2017")
 
-    df_comp["var_preco"] = df_comp["preco_txt"] / df_comp["preco_num"]
-    df_comp["dif_preco"] = df_comp["preco_txt"] - df_comp["preco_num"]
-    df_comp["media_var_preco"] = df_comp["var_preco"] * df_comp["media_num"]
+    #df_comp["var_preco"] = df_comp["preco_txt"] / df_comp["preco_num"]
+    #df_comp["dif_preco"] = df_comp["preco_txt"] - df_comp["preco_num"]
+    #df_comp["media_var_preco"] = df_comp["var_preco"] * df_comp["media_num"]
 
     cart = cartoleiro.Cartoleiro()
     df_comp["team"] = df_comp["clube_id"].apply(lambda x: cart.df_teams.loc[str(x)].abreviacao)
     df_comp["pos"] = df_comp["posicao_id"].apply(lambda x: df_posicoes[str(x)]["abreviacao"])
     df_comp["status"] = df_comp["status_id"].apply(lambda x: df_status[str(x)]["nome"])
-    #df_comp = df_comp[df_comp.team.isin(["CRU", "VIT", "SAN", "AME", "VAS", "COR", "INT", "ATP", "BOT", "SAO"])]
-    df_matches = pd.DataFrame(cartola_api.read_rounddata()["partidas"])
-    df_comp = df_comp[df_comp.clube_id.isin(df_matches["clube_casa_id"])]
+
+    #df_matches = pd.DataFrame(cartola_api.read_rounddata()["partidas"])
+    #df_comp = df_comp[df_comp.clube_id.isin(df_matches["clube_casa_id"])]
     df_comp = df_comp[df_comp.status_id == 7]
     print(df_comp.columns)
     print(df_comp["team"].unique())
 
-    df_comp = df_comp.sort_values("media_var_preco", ascending=False)
+    cart.calc_ranking()
+    cart.calc_round_indexes()
+    print("GOLEIROS")
+    print(cart.select_players(df_comp, 1, "idx_goalkeeper", 7.0, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                       "media_num", "pontos_num"]].head(3))
+    print("LATERAIS")
+    print(cart.select_players(df_comp, 2, "idx_coach", 7.0, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                       "media_num", "pontos_num"]].head(5))
+    print("ZAGUEIROS")
+    print(cart.select_players(df_comp, 3, "idx_defense", 7.0, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                   "media_num", "pontos_num"]].head(5))
+    print("MEIAS")
+    print(cart.select_players(df_comp, 4, "idx_attack", 7.0, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                   "media_num", "pontos_num"]].head(7))
+    print("ATACANTES")
+    print(cart.select_players(df_comp, 5, "idx_attack", 7.0, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                   "media_num", "pontos_num"]].head(7))
+    print("TECNICOS")
+    print(cart.select_players(df_comp, 6, "idx_coach", 7.0, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                   "media_num", "pontos_num"]].head(3))
+    #df_comp = df_comp.sort_values("media_var_preco", ascending=False)
     #print(df_comp.head(15))
-
+"""    
     df_team1 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
     df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 4].head(3)) # 3 mei
@@ -423,6 +443,7 @@ def main2():
     df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
     print(df_team2[["apelido2018", "team", "pos", "media_num", "preco_num", "dif_preco"]])
     print(df_team2[['preco_num','dif_preco']].sum())
+"""
 
 def main3():
     cart = cartoleiro.Cartoleiro()
@@ -439,4 +460,4 @@ def main3():
     cart.calc_ranking()
     cart.calc_round_indexes()
 
-main3()
+main2()
