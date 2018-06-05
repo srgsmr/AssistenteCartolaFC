@@ -37,6 +37,7 @@ class Cartoleiro:
         self.df_teams = self.read_teams()
         self.scout_table = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
         self.rounds_table = pd.read_csv("data2018/rounds_table.csv", encoding='utf_16')
+        self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]
         #self.read_last_round()
         #self.read_last_round()
 
@@ -62,6 +63,7 @@ class Cartoleiro:
     def update_scout(self):
 
         df_atletas = pd.DataFrame(cartola_api.read_data()['atletas'])
+        #cartola_api.load_rawdata("cartola2018-05-12.txt", "data2018/")
         df_atletas = pd.DataFrame(cartola_api.data['atletas'])
         l = []
         for index, atleta in df_atletas.iterrows():
@@ -194,13 +196,27 @@ class Cartoleiro:
 
     def select_players(self, df_players, position, idx, min_price, max_price):
         df_pos = df_players[df_players.posicao_id == position]
-        df_pos = df_pos[df_pos.jogos_num >= 3]
-        df_pos = df_pos[df_pos.preco_num >= min_price]
-        df_pos = df_pos[df_pos.preco_num <= max_price]
+        df_pos = df_pos[df_pos.jogos_num >= 6]
+        #df_pos = df_pos[df_pos.preco_num >= min_price]
+        #df_pos = df_pos[df_pos.preco_num <= max_price]
 
         df_pos = df_pos.set_index("clube_id")
         df_idx = self.indexes.set_index("id")
         df_pos = df_pos.join(df_idx, lsuffix="player", rsuffix="team")
         df_pos["pos_pts"] = df_pos["media_num"] * df_pos[idx]
+        df_pos["roi"] = df_pos["pos_pts"] / df_pos["preco_num"]
+        df_pos = df_pos.sort_values("pos_pts", ascending=False)
+        return df_pos
+
+    def select_players_roi(self, df_players, position, idx, min_price, max_price):
+        df_pos = df_players[df_players.posicao_id == position]
+        df_pos = df_pos[df_pos.jogos_num >= 6]
+        #df_pos = df_pos[df_pos.preco_num >= min_price]
+        #df_pos = df_pos[df_pos.preco_num <= max_price]
+
+        df_pos = df_pos.set_index("clube_id")
+        df_idx = self.indexes.set_index("id")
+        df_pos = df_pos.join(df_idx, lsuffix="player", rsuffix="team")
+        df_pos["pos_pts"] = df_pos["media_num"] * df_pos[idx] / df_pos["preco_num"]
         df_pos = df_pos.sort_values("pos_pts", ascending=False)
         return df_pos
