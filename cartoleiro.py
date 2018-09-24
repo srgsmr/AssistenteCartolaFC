@@ -149,13 +149,19 @@ class Cartoleiro:
         self.ranking = self.ranking.sort_values("total_points", ascending=False)
         #print(self.ranking)
 
-    def calc_round_indexes(self):
+    def calc_round_indexes(self, cheating = None):
         self.read_next_round()
         self.indexes = self.df_teams[["abreviacao", "id", "nome"]]
         self.indexes.set_index("id")
         self.indexes["attack"] = None
         self.indexes["defense"] = 0.0
         self.indexes["goalkeeper"] = 0.0
+
+        if cheating == 14 :
+            # just cheating to simulate round 14 as the next round
+            round14 = {"clube_casa_id":[262,276,289,265,267,292,275,283,315,285],
+                       "clube_visitante_id":[263,264,327,287,284,266,282,293,277,354]}
+            self.next_round = pd.DataFrame.from_dict(round14)
 
         for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
             print("Mandante: " + str(host_id) + " Visitante: " + str(guest_id))
@@ -169,11 +175,11 @@ class Cartoleiro:
                                                self.ranking.loc[guest, "guest_matches"]) * \
                                                 (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
                                                self.ranking.loc[host, "host_matches"])
-            self.indexes.loc[host, "defense"] = 1 / (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
+            self.indexes.loc[host, "defense"] = max(0.1, self.ranking.loc[host, "host_nogoals_suf"]) / (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
                                            self.ranking.loc[host, "host_matches"] * \
                                            max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
                                            self.ranking.loc[guest, "guest_matches"])
-            self.indexes.loc[guest, "defense"] = 1 / (max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
+            self.indexes.loc[guest, "defense"] = max(0.1, self.ranking.loc[guest, "guest_nogoals_suf"]) / (max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
                                             self.ranking.loc[guest, "guest_matches"] * \
                                             max(0.5, self.ranking.loc[host, "host_scored"]) / \
                                             self.ranking.loc[host, "host_matches"])
@@ -196,7 +202,7 @@ class Cartoleiro:
 
     def select_players(self, df_players, position, idx, min_price, max_price):
         df_pos = df_players[df_players.posicao_id == position]
-        df_pos = df_pos[df_pos.jogos_num >= 6]
+        df_pos = df_pos[df_pos.jogos_num >= 11]
         #df_pos = df_pos[df_pos.preco_num >= min_price]
         #df_pos = df_pos[df_pos.preco_num <= max_price]
 

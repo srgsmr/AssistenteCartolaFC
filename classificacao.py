@@ -360,6 +360,9 @@ def main():
 
 
 def main2():
+    pd.set_option("display.width", None)
+
+
     atletas = cartola_api.read_data()
     print(cartola_api.save_rawdata())
     # if not cfc.cartola_api.load_rawdata("cartola2018-04-01.txt"):
@@ -374,18 +377,19 @@ def main2():
     df_posicoes = pd.DataFrame(atletas["posicoes"])
     # print(df_posicoes)
     # print(df_atletas.info())
-
+    """
     atletas_2017 = pd.read_csv("data2018/2017_scouts.csv", sep=";", encoding="cp860")
     atletas_2017.columns = ["apelido", "atleta_id", "preco_txt", "preco"]
     atletas_2017 = atletas_2017.set_index("atleta_id")
     # print(atletas_2017.info())
-
+    """
 
     df_comp = df_atletas  # .join(atletas_2017,  lsuffix="2018", rsuffix="2017")
 
     # df_comp["var_preco"] = df_comp["preco_txt"] / df_comp["preco_num"]
     # df_comp["dif_preco"] = df_comp["preco_txt"] - df_comp["preco_num"]
     # df_comp["media_var_preco"] = df_comp["var_preco"] * df_comp["media_num"]
+
 
     cart = cartoleiro.Cartoleiro()
     df_comp["team"] = df_comp["clube_id"].apply(lambda x: cart.df_teams.loc[str(x)].abreviacao)
@@ -400,21 +404,21 @@ def main2():
 
     cart.calc_ranking()
     cart.calc_round_indexes()
-    print("GOLEIROS")
-    print(cart.select_players(df_comp, 1, "idx_goalkeeper", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                        "media_num", "roi"]].head(3))
-    print("LATERAIS")
-    print(cart.select_players(df_comp, 2, "idx_coach", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                   "media_num", "roi"]].head(5))
-    print("ZAGUEIROS")
-    print(cart.select_players(df_comp, 3, "idx_defense", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                     "media_num", "roi"]].head(5))
-    print("MEIAS")
-    print(cart.select_players(df_comp, 4, "idx_attack", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                    "media_num", "roi"]].head(7))
     print("ATACANTES")
     print(cart.select_players(df_comp, 5, "idx_attack", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
                                                                     "media_num", "roi"]].head(7))
+    print("MEIAS")
+    print(cart.select_players(df_comp, 4, "idx_attack", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                    "media_num", "roi"]].head(7))
+    print("LATERAIS")
+    print(cart.select_players(df_comp, 2, "idx_coach", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                   "media_num", "roi"]].head(5))
+    print("GOLEIROS")
+    print(cart.select_players(df_comp, 1, "idx_goalkeeper", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                        "media_num", "roi"]].head(3))
+    print("ZAGUEIROS")
+    print(cart.select_players(df_comp, 3, "idx_defense", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                     "media_num", "roi"]].head(5))
     print("TECNICOS")
     print(cart.select_players(df_comp, 6, "idx_coach", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
                                                                    "media_num", "roi"]].head(3))
@@ -458,7 +462,7 @@ def main3():
     print(cart.scout_table.tail())
     print(cart.df_teams)
     # cart.calc_ranking()
-    # cart.calc_round_indexes()
+    # cart.calc_round_indexes(  )
 
 
 main2()
