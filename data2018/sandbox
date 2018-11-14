@@ -1,0 +1,50 @@
+GOLEIROS
+         abreviacao      apelido   pos_pts  preco_num  media_num       roi
+clube_id
+262             FLA  Diego Alves  1.176530      12.79       7.25  0.091988
+275             PAL      Jailson  0.386587      13.35       5.36  0.028958
+315             CHA      Jandrei  0.367243       6.25       2.37  0.058759
+LATERAIS
+    abreviacao       apelido   pos_pts  preco_num  media_num        roi
+285        INT          Iago   0.56311       9.54       4.18  0.0590262
+276        SAO  Éder Militão  0.407775      13.34       5.72  0.0305679
+263        BOT      Marcinho  0.372317       6.51       2.83  0.0571915
+327        AME     Norberto   0.360268      10.08       3.91  0.0357409
+289        PAR        Júnior  0.346668       7.61       7.59  0.0455543
+ZAGUEIROS
+    abreviacao         apelido   pos_pts  preco_num  media_num       roi
+285        INT   Víctor Cuesta  1.745166      19.15       8.85  0.091131
+285        INT  Rodrigo Moledo  1.224574      11.87       6.21  0.103165
+263        BOT    Igor Rabello  0.650001      10.09       2.93  0.064420
+283        CRU            Dedé  0.479847      10.74       7.21  0.044678
+266        FLU   Renato Chaves  0.399318       8.16       4.32  0.048936
+MEIAS
+    abreviacao         apelido   pos_pts  preco_num  media_num        roi
+327        AME        Serginho   0.93492      17.07       5.93  0.0547698
+282        ATL  Gustavo Blanco  0.891882      19.17       9.26  0.0465249
+276        SAO     Diego Souza  0.766913      11.56       6.37  0.0663419
+276        SAO            Nenê  0.593545       9.80       4.93  0.0605658
+266        FLU         Richard  0.575967      17.24       5.98  0.0334088
+276        SAO         Everton  0.496025       9.69       4.12  0.0511894
+262        FLA   Lucas Paquetá  0.489833      21.30       8.90  0.0229969
+ATACANTES
+    abreviacao           apelido   pos_pts  preco_num  media_num        roi
+282        ATL      Róger Guedes   1.02383      18.04      10.63  0.0567536
+266        FLU             Pedro  0.800382      15.59       8.31  0.0513395
+282        ATL  Ricardo Oliveira  0.792677      13.42       8.23  0.0590668
+275        PAL           Willian  0.424752      10.28       6.86  0.0413182
+285        INT             Lucca  0.415361      10.06       5.75  0.0412884
+262        FLA   Vinicius Junior  0.364348      15.93       6.62  0.0228718
+327        AME              Luan  0.362617       9.59       2.30  0.0378119
+TECNICOS
+         abreviacao           apelido   pos_pts  preco_num  media_num  \
+clube_id
+285             INT    Odair Hellmann  0.654716      10.94       4.86
+263             BOT  Alberto Valentim  0.535452      10.00       4.07
+282             ATL     Thiago Larghi  0.431188      11.15       5.40
+
+                roi
+clube_id
+285       0.0598461
+263       0.0535452
+282       0.0386716
