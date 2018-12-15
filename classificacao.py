@@ -421,7 +421,7 @@ def main2():
                                                                      "media_num", "roi"]].head(5))
     print("TECNICOS")
     print(cart.select_players(df_comp, 6, "idx_coach", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                   "media_num", "roi"]].head(3))
+                                                                   "media_num", "roi"]].head(5))
     # df_comp = df_comp.sort_values("media_var_preco", ascending=False)
     # print(df_comp.head(15))
 
