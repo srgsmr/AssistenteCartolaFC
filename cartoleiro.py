@@ -32,9 +32,11 @@ class Cartoleiro:
     rounds_table = pd.DataFrame()
     ranking = pd.DataFrame()
 
-    def __init__(self):
+    def __init__(self, season_on=True):
         """ init teams data reading teams data from CartolaAPI """
-        self.df_teams = self.read_teams()
+        self.season_on = season_on
+        if self.season_on:
+            self.df_teams = self.read_teams()
         self.scout_table = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
         self.rounds_table = pd.read_csv("data2018/rounds_table.csv", encoding='utf_16')
         self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]

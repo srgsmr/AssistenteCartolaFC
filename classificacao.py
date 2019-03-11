@@ -377,19 +377,8 @@ def main2():
     df_posicoes = pd.DataFrame(atletas["posicoes"])
     # print(df_posicoes)
     # print(df_atletas.info())
-    """
-    atletas_2017 = pd.read_csv("data2018/2017_scouts.csv", sep=";", encoding="cp860")
-    atletas_2017.columns = ["apelido", "atleta_id", "preco_txt", "preco"]
-    atletas_2017 = atletas_2017.set_index("atleta_id")
-    # print(atletas_2017.info())
-    """
 
-    df_comp = df_atletas  # .join(atletas_2017,  lsuffix="2018", rsuffix="2017")
-
-    # df_comp["var_preco"] = df_comp["preco_txt"] / df_comp["preco_num"]
-    # df_comp["dif_preco"] = df_comp["preco_txt"] - df_comp["preco_num"]
-    # df_comp["media_var_preco"] = df_comp["var_preco"] * df_comp["media_num"]
-
+    df_comp = df_atletas
 
     cart = cartoleiro.Cartoleiro()
     df_comp["team"] = df_comp["clube_id"].apply(lambda x: cart.df_teams.loc[str(x)].abreviacao)
@@ -422,47 +411,122 @@ def main2():
     print("TECNICOS")
     print(cart.select_players(df_comp, 6, "idx_coach", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
                                                                    "media_num", "roi"]].head(5))
-    # df_comp = df_comp.sort_values("media_var_preco", ascending=False)
-    # print(df_comp.head(15))
 
 
-"""    
-    df_team1 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
-    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
-    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 4].head(3)) # 3 mei
-    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
-    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 2 lat
-    df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
-    print(df_team1[["apelido2018", "team", "pos", "media_num", "preco_num", "preco_txt"]])
-    print(df_team1[['preco_num','dif_preco']].sum())
 
-    df_comp = df_comp.sort_values("dif_preco", ascending=False)
+def main4():
+    # console setup
+    pd.set_option("display.width", None)
 
-    df_team2 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
-    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
-    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 4].head(3)) # 3 mei
-    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
-    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 2 lat
-    df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
-    print(df_team2[["apelido2018", "team", "pos", "media_num", "preco_num", "dif_preco"]])
-    print(df_team2[['preco_num','dif_preco']].sum())
-"""
+    # test if season is open, if not opened then load data from files
 
+    cartola_data = cartola_api.read_data()
+    # if last round and market is closed (4) then there is no more plays on this season
+    if cartola_data["rodada_atual"] == 38 and cartola_data["status_mercado"] == 4:
+        season_on = False
+        print("Temporada ainda não começou :(")
+        # load data from last round of the last season
+        # TODO change file path hardcode
+        df_atletas = pd.read_csv("data2018/Atletas.csv", encoding="cp860")
+    else:
+        season_on = True
+        print("Temporada aberta. Vamos jogar!")
+        print("Dados salvos em: " + cartola_api.save_rawdata())
+        df_atletas = pd.DataFrame(cartola_data["atletas"])
+        # TODO change file path hardcode
+        df_atletas.to_csv("data2019/Atletas.csv", encoding="cp860")
 
-def main3():
-    cart = cartoleiro.Cartoleiro()
-    # cart.read_next_round()
-    # print(cart.next_round)
-    # print(pd.DataFrame(cart.read_teams()['327']).T.append(pd.DataFrame(cart.read_teams()['284']).T))
+        df_status = pd.DataFrame(cartola_data["status"])
+        df_posicoes = pd.DataFrame(cartola_data["posicoes"])
+
+    df_atletas = df_atletas.set_index("atleta_id")
+    print(df_atletas.head())
+
+    # TODO include the above df_atletas load to the cartoleiro._init_ method
+    cart = cartoleiro.Cartoleiro(season_on)
+
+    # before next round calculations update tables Rounds e Scouts from last round
+    # TODO make these update methods smarter, checking if update is needed
     # cart.update_scout()
     # cart.update_rounds()
-    # df = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
-    # print(df[df.jogos_num > 0].sort_values(by='pontos_num',ascending=False))
-    print(cart.rounds_table.tail(12))
-    print(cart.scout_table.tail())
-    print(cart.df_teams)
-    # cart.calc_ranking()
-    # cart.calc_round_indexes(  )
+
+    # prepare players dataframe to calcs
+
+    df_comp = df_atletas
+    # decode id to meaninful names
+    if season_on: # TODO create a teams dictionary to substitute df_teams, df_posicoes and df_status need
+        df_comp["team"] = df_comp["clube_id"].apply(lambda x: cart.df_teams.loc[str(x)].abreviacao)
+        df_comp["pos"] = df_comp["posicao_id"].apply(lambda x: df_posicoes[str(x)]["abreviacao"])
+        df_comp["status"] = df_comp["status_id"].apply(lambda x: df_status[str(x)]["nome"])
+
+    # keep only players confirmed for the round (status_id == 7)
+    df_comp = df_comp[df_comp.status_id == 7]
+
+    #test to identify season first rounds
+    first_rounds = True # force first round situation
+
+    if not first_rounds: # calculate players stats for team selection
+        cart.calc_ranking()
+        cart.calc_round_indexes()
+        print("ATACANTES")
+        print(cart.select_players(df_comp, 5, "idx_attack", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                        "media_num", "roi"]].head(7))
+        print("MEIAS")
+        print(cart.select_players(df_comp, 4, "idx_attack", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                        "media_num", "roi"]].head(7))
+        print("LATERAIS")
+        print(cart.select_players(df_comp, 2, "idx_coach", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                       "media_num", "roi"]].head(5))
+        print("GOLEIROS")
+        print(cart.select_players(df_comp, 1, "idx_goalkeeper", 7.5, 11.5)[
+                  ["abreviacao", "apelido", "pos_pts", "preco_num",
+                   "media_num", "roi"]].head(3))
+        print("ZAGUEIROS")
+        print(
+            cart.select_players(df_comp, 3, "idx_defense", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                       "media_num", "roi"]].head(5))
+        print("TECNICOS")
+        print(cart.select_players(df_comp, 6, "idx_coach", 7.5, 11.5)[["abreviacao", "apelido", "pos_pts", "preco_num",
+                                                                       "media_num", "roi"]].head(5))
+    else: # select players using price difference between the last and actual seasons
+        print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a rodada passada...')
+        # TODO Calculate price diference for players selection on first rounds
+        """
+        atletas_2017 = pd.read_csv("data2018/2017_scouts.csv", sep=";", encoding="cp860")
+        atletas_2017.columns = ["apelido", "atleta_id", "preco_txt", "preco"]
+        atletas_2017 = atletas_2017.set_index("atleta_id")
+        # print(atletas_2017.info())
+        """
+        df_comp = df_atletas  # .join(atletas_2017,  lsuffix="2018", rsuffix="2017")
+
+        # df_comp["var_preco"] = df_comp["preco_txt"] / df_comp["preco_num"]
+        # df_comp["dif_preco"] = df_comp["preco_txt"] - df_comp["preco_num"]
+        # df_comp["media_var_preco"] = df_comp["var_preco"] * df_comp["media_num"]
+
+        # df_comp = df_comp.sort_values("media_var_preco", ascending=False)
+        # print(df_comp.head(15))
+
+        """ 
+        df_team1 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
+        df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
+        df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 4].head(3)) # 3 mei
+        df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
+        df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 2 lat
+        df_team1 = df_team1.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
+        print(df_team1[["apelido2018", "team", "pos", "media_num", "preco_num", "preco_txt"]])
+        print(df_team1[['preco_num','dif_preco']].sum())
+
+        df_comp = df_comp.sort_values("dif_preco", ascending=False)
+
+        df_team2 = df_comp[df_comp["posicao_id"] == 6].head(1) # 1 tec
+        df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 5].head(3)) # 3 ata
+        df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 4].head(3)) # 3 mei
+        df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 3].head(2)) # 2 zag
+        df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 2].head(2)) # 2 lat
+        df_team2 = df_team2.append(df_comp[df_comp["posicao_id"] == 1].head(1)) # 1 gol
+        print(df_team2[["apelido2018", "team", "pos", "media_num", "preco_num", "dif_preco"]])
+        print(df_team2[['preco_num','dif_preco']].sum())
+        """
 
 
-main2()
+main4()
