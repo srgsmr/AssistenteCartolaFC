@@ -202,11 +202,9 @@ class Cartoleiro:
 
         #print(self.indexes.sort_values("idx_coach", ascending=False))
 
-    def select_players(self, df_players, position, idx, min_price, max_price):
+    def select_players(self, df_players, position, idx):
         df_pos = df_players[df_players.posicao_id == position]
         df_pos = df_pos[df_pos.jogos_num >= 11]
-        #df_pos = df_pos[df_pos.preco_num >= min_price]
-        #df_pos = df_pos[df_pos.preco_num <= max_price]
 
         df_pos = df_pos.set_index("clube_id")
         df_idx = self.indexes.set_index("id")
@@ -216,15 +214,30 @@ class Cartoleiro:
         df_pos = df_pos.sort_values("pos_pts", ascending=False)
         return df_pos
 
-    def select_players_roi(self, df_players, position, idx, min_price, max_price):
+    def select_players_pricediff(self, df_players, position, df_players_last_season, home_only=False):
         df_pos = df_players[df_players.posicao_id == position]
-        df_pos = df_pos[df_pos.jogos_num >= 6]
-        #df_pos = df_pos[df_pos.preco_num >= min_price]
-        #df_pos = df_pos[df_pos.preco_num <= max_price]
+        df_pos_las = df_players_last_season
+        # df_pos_las = df_players_last_season[df_players_last_season.posicao_id == position and
+        #                                    df_players_last_season.jogos_num >= 25]
 
-        df_pos = df_pos.set_index("clube_id")
-        df_idx = self.indexes.set_index("id")
-        df_pos = df_pos.join(df_idx, lsuffix="player", rsuffix="team")
-        df_pos["pos_pts"] = df_pos["media_num"] * df_pos[idx] / df_pos["preco_num"]
-        df_pos = df_pos.sort_values("pos_pts", ascending=False)
+        if home_only and self.season_on:
+            # keep only players from home teams for the next round
+            self.read_next_round()
+            df_pos = df_pos[df_pos.clube_id.isin(self.next_round["clube_casa_id"])]
+
+        if self.season_on:
+            df_pos = df_pos.set_index("clube_id")
+            df_idx = self.indexes.set_index("id")
+            df_pos = df_pos.join(df_idx, lsuffix="player", rsuffix="team")
+        else:
+            df_pos["abreviacao"] = df_pos["clube_id"]
+
+        df_pos = df_pos.join(df_pos_las, lsuffix="_actual", rsuffix="_last")
+
+        df_pos["var_preco"] = df_pos["preco_txt"] / df_pos["preco_num"]
+        df_pos["dif_preco"] = df_pos["preco_txt"] - df_pos["preco_num"]
+        # df_pos["media_var_preco"] = df_pos["var_preco"] * df_pos["media_num"]
+
+        df_pos = df_pos.sort_values("dif_preco", ascending=False)
+
         return df_pos
