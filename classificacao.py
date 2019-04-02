@@ -425,7 +425,12 @@ def main4():
         print("Temporada ainda não começou :(")
         # load data from last round of the last season
         # TODO change file path hardcode
-        df_atletas = pd.read_csv("data2018/Atletas.csv", encoding="cp860")
+        df_atletas = pd.read_csv("data2019/rodada_38.csv", encoding="cp860")
+        # conv_status = {"Provável":7, "Contudido":5, "Dúvida":2, "Suspenso":3, "Nulo":6, "Contundido":5}
+        # df_atletas["status_id"] = df_atletas["status_id"].apply(lambda x: conv_status[x])
+        # conv_pos = {"gol":1, "zag":3, "lat":2, "mei":4, "ata":5, "tec":6}
+        # df_atletas["posicao_id"] = df_atletas["posicao_id"].apply(lambda x: conv_pos[x])
+        # df_atletas.to_csv("data2019/rodada_38.csv", encoding="cp860")
     else:
         season_on = True
         print("Temporada aberta. Vamos jogar!")
@@ -438,7 +443,6 @@ def main4():
         df_posicoes = pd.DataFrame(cartola_data["posicoes"])
 
     df_atletas = df_atletas.set_index("atleta_id")
-    print(df_atletas.head())
 
     # TODO include the above df_atletas load to the cartoleiro._init_ method
     cart = cartoleiro.Cartoleiro(season_on)
@@ -490,7 +494,8 @@ def main4():
 
         # read data from last season to compare
         # TODO identity season to read the correct path and file automatically
-        df_players_last_season = pd.read_csv("data2018/2017_scouts.csv", sep=";", encoding="cp860")
+        # df_players_last_season = pd.read_csv("data2018/2017_scouts.csv", sep=";", encoding="cp860")
+        df_players_last_season = pd.DataFrame(pd.read_csv("data2018/cartola2018-12-01.txt", encoding="cp860")["atletas"])
         df_players_last_season.columns = ["apelido", "atleta_id", "preco_txt", "preco"]
         df_players_last_season = df_players_last_season.set_index("atleta_id")
         # print(df_players_last_season.info())

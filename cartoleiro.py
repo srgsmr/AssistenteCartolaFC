@@ -230,7 +230,9 @@ class Cartoleiro:
             df_idx = self.indexes.set_index("id")
             df_pos = df_pos.join(df_idx, lsuffix="player", rsuffix="team")
         else:
+            df_pos.is_copy = False  # deactivate warning
             df_pos["abreviacao"] = df_pos["clube_id"]
+            df_pos.is_copy = True   # reactivate warning
 
         df_pos = df_pos.join(df_pos_las, lsuffix="_actual", rsuffix="_last")
 
