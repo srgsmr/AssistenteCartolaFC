@@ -420,7 +420,8 @@ def main4():
 
     cartola_data = cartola_api.read_data()
     # if last round and market is closed (4) then there is no more plays on this season
-    if cartola_data["rodada_atual"] == 38 and cartola_data["status_mercado"] == 4:
+    #if cartola_data["rodada_atual"] == 38 and cartola_data["status_mercado"] == 4:
+    if len(cartola_data) != 4:
         season_on = False
         print("Temporada ainda não começou :(")
         # load data from last round of the last season
@@ -490,34 +491,35 @@ def main4():
                                                             "media_num", "roi"]].head(5))
     else: # select players using price difference between the last and actual seasons
         print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a rodada passada...')
-        # TODO Calculate price diference for players selection on first rounds
+        # TODO Calculate price difference for players selection on first rounds
 
         # read data from last season to compare
         # TODO identity season to read the correct path and file automatically
         # df_players_last_season = pd.read_csv("data2018/2017_scouts.csv", sep=";", encoding="cp860")
-        df_players_last_season = pd.DataFrame(pd.read_csv("data2018/cartola2018-12-01.txt", encoding="cp860")["atletas"])
-        df_players_last_season.columns = ["apelido", "atleta_id", "preco_txt", "preco"]
+        # df_players_last_season = pd.DataFrame(pd.read_csv("data2018/cartola2018-12-01.txt", encoding="cp860")["atletas"])
+        # df_players_last_season.columns = ["apelido", "atleta_id", "preco_txt", "preco"]
+        df_players_last_season = pd.read_csv("data2019/rodada_38.csv", encoding="cp860")
         df_players_last_season = df_players_last_season.set_index("atleta_id")
         # print(df_players_last_season.info())
 
         print("ATACANTES")
-        print(cart.select_players_pricediff(df_comp, 5, df_players_last_season)[["abreviacao", "apelido_actual", "dif_preco", "preco_num",
-                                                                        "media_num", "var_preco"]].head(7))
+        print(cart.select_players_pricediff(df_comp, 5, df_players_last_season, home_only=True)[["team", "apelido_actual", "dif_preco", "preco_num_actual",
+                                                                        "preco_num_last", "media_num_last", "var_preco"]].head(7))
         print("MEIAS")
-        print(cart.select_players_pricediff(df_comp, 4, df_players_last_season)[["abreviacao", "apelido_actual", "dif_preco", "preco_num",
-                                                                        "media_num", "var_preco"]].head(7))
+        print(cart.select_players_pricediff(df_comp, 4, df_players_last_season, home_only=True)[["team", "apelido_actual", "dif_preco", "preco_num_actual",
+                                                                        "preco_num_last", "media_num_last", "var_preco"]].head(7))
         print("LATERAIS")
-        print(cart.select_players_pricediff(df_comp, 2, df_players_last_season)[["abreviacao", "apelido_actual", "dif_preco", "preco_num",
-                                                                        "media_num", "var_preco"]].head(5))
+        print(cart.select_players_pricediff(df_comp, 2, df_players_last_season, home_only=True)[["team", "apelido_actual", "dif_preco", "preco_num_actual",
+                                                                        "preco_num_last", "media_num_last", "var_preco"]].head(5))
         print("GOLEIROS")
-        print(cart.select_players_pricediff(df_comp, 1, df_players_last_season)[["abreviacao", "apelido_actual", "dif_preco", "preco_num",
-                                                                        "media_num", "var_preco"]].head(3))
+        print(cart.select_players_pricediff(df_comp, 1, df_players_last_season, home_only=True)[["team", "apelido_actual", "dif_preco", "preco_num_actual",
+                                                                        "preco_num_last", "media_num_last", "var_preco"]].head(3))
         print("ZAGUEIROS")
-        print(cart.select_players_pricediff(df_comp, 3, df_players_last_season)[["abreviacao", "apelido_actual", "dif_preco", "preco_num",
-                                                                        "media_num", "var_preco"]].head(5))
+        print(cart.select_players_pricediff(df_comp, 3, df_players_last_season, home_only=True)[["team", "apelido_actual", "dif_preco", "preco_num_actual",
+                                                                        "preco_num_last", "media_num_last", "var_preco"]].head(5))
         print("TECNICOS")
-        print(cart.select_players_pricediff(df_comp, 6, df_players_last_season)[["abreviacao", "apelido_actual", "dif_preco", "preco_num",
-                                                                        "media_num", "var_preco"]].head(5))
+        print(cart.select_players_pricediff(df_comp, 6, df_players_last_season, home_only=True)[["team", "apelido_actual", "dif_preco", "preco_num_actual",
+                                                                        "preco_num_last", "media_num_last", "var_preco"]].head(5))
 
 
 main4()

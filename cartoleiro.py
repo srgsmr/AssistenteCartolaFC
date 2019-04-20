@@ -37,9 +37,15 @@ class Cartoleiro:
         self.season_on = season_on
         if self.season_on:
             self.df_teams = self.read_teams()
-        self.scout_table = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
-        self.rounds_table = pd.read_csv("data2018/rounds_table.csv", encoding='utf_16')
-        self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]
+        # TODO remove path hardcode to read these files
+        # TODO handle file exceptions
+        try:
+            self.scout_table = pd.read_csv("data2019/scout_table.csv", encoding='utf_16')
+            self.rounds_table = pd.read_csv("data2019/rounds_table.csv", encoding='utf_16')
+            self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]
+        except:
+            self.scout_table = pd.DataFrame()
+            self.rounds_table = pd.DataFrame()
         #self.read_last_round()
         #self.read_last_round()
 
@@ -64,7 +70,7 @@ class Cartoleiro:
 
     def update_scout(self):
 
-        df_atletas = pd.DataFrame(cartola_api.read_data()['atletas'])
+        #df_atletas = pd.DataFrame(cartola_api.read_data()['atletas'])
         #cartola_api.load_rawdata("cartola2018-05-12.txt", "data2018/")
         df_atletas = pd.DataFrame(cartola_api.data['atletas'])
         l = []
@@ -83,7 +89,7 @@ class Cartoleiro:
             d['status_id'] = atleta['status_id']
             d['variacao_num'] = atleta['variacao_num']
             l.append(d)
-        self.scout_table = pd.read_csv("data2018/scout_table.csv", encoding='utf_16')
+        # self.scout_table = pd.read_csv("data2019/scout_table.csv", encoding='utf_16')
         self.scout_table = self.scout_table.append(l)
 
         self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
@@ -226,9 +232,10 @@ class Cartoleiro:
             df_pos = df_pos[df_pos.clube_id.isin(self.next_round["clube_casa_id"])]
 
         if self.season_on:
-            df_pos = df_pos.set_index("clube_id")
-            df_idx = self.indexes.set_index("id")
-            df_pos = df_pos.join(df_idx, lsuffix="player", rsuffix="team")
+            a = 1
+            # df_pos = df_pos.set_index("clube_id")
+            # df_idx = self.indexes.set_index("id")
+            # df_pos = df_pos.join(df_idx, lsuffix="player", rsuffix="team")
         else:
             df_pos.is_copy = False  # deactivate warning
             df_pos["abreviacao"] = df_pos["clube_id"]
@@ -236,8 +243,8 @@ class Cartoleiro:
 
         df_pos = df_pos.join(df_pos_las, lsuffix="_actual", rsuffix="_last")
 
-        df_pos["var_preco"] = df_pos["preco_txt"] / df_pos["preco_num"]
-        df_pos["dif_preco"] = df_pos["preco_txt"] - df_pos["preco_num"]
+        df_pos["var_preco"] = df_pos["preco_num_last"] / df_pos["preco_num_actual"]
+        df_pos["dif_preco"] = df_pos["preco_num_last"] - df_pos["preco_num_actual"]
         # df_pos["media_var_preco"] = df_pos["var_preco"] * df_pos["media_num"]
 
         df_pos = df_pos.sort_values("dif_preco", ascending=False)
