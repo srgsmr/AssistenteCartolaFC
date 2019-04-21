@@ -38,7 +38,6 @@ class Cartoleiro:
         if self.season_on:
             self.df_teams = self.read_teams()
         # TODO remove path hardcode to read these files
-        # TODO handle file exceptions
         try:
             self.scout_table = pd.read_csv("data2019/scout_table.csv", encoding='utf_16')
             self.rounds_table = pd.read_csv("data2019/rounds_table.csv", encoding='utf_16')

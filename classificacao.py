@@ -294,151 +294,31 @@ def formation_analysis(defense, attack):
 
 
 def main():
-    """ the main funtion :) """
-
-    # load results from the first n rounds of league
-    num_round = 37
-    print("Lendo os resultados dos jogos das " + str(num_round) + " rodadas...")
-    read_league_results(num_round)
-
-    print("Calculando os pontos ganhos...")
-    calculate_teams_points()
-
-    # for line in teams:
-    #    print(line, ":", teams[line])
-    print("Calculando o aproveitamento...")
-    calculate_performance()
-
-    print("Calculando jogos sem sofrer gols...")
-    count_no_goals_received()
-    print("Calculando jogos marcando mais que X gols...")
-    count_top_scorer(3)
-    print("Calculando gols marcados...")
-    count_goals_scorered()
-    print("Calculando gols sofridos...")
-    count_goals_suffered()
-
-    print("Gravando a classificação em arquivo...")
-    save_classification()
-
-    print("Carregando jogos da próxima rodada...")
-    next_round = read_next_round_file('jogos_rodada38')
-
-    print("Calculando índice de ataque baseado em gols...")
-    calc_idx_goals_attack(next_round)
-
-    print("\n")
-    print("-- Melhores times para escalar Atacantes:")
-    print("\n")
-    print_sorted_table(idx_goals_attack)
-
-    print("Calculando índice de defesa baseado em gols...")
-    calc_idx_goals_defense(next_round)
-    print("\n")
-    print("-- Melhores times para escalar Defensores:")
-    print("\n")
-    print_sorted_table(idx_goals_defense)
-
-    print("Calculando índice de técnico...")
-    calc_idx_coach(next_round)
-    print("\n")
-    print("-- Melhores times para escalar Técnicos:")
-    print("\n")
-    print_sorted_table(idx_coach)
-
-    print("\n")
-    print("Calculando índice de goleiro...")
-    calc_idx_goalkeeper(next_round)
-    print("\n")
-    print("-- Melhores times para escalar Goleiro:")
-    print("\n")
-    print_sorted_table(idx_goalkeeper)
-
-    print("\n")
-    formation_analysis(3, 7)
-    formation_analysis(4, 6.5)
-
-
-def main2():
-    pd.set_option("display.width", None)
-
-
-    atletas = cartola_api.read_data()
-    print(cartola_api.save_rawdata())
-    # if not cfc.cartola_api.load_rawdata("cartola2018-04-01.txt"):
-    #    return
-    # atletas = cfc.cartola_api.data
-    df_atletas = pd.DataFrame(atletas["atletas"])
-    df_atletas = df_atletas.set_index("atleta_id")
-    df_atletas.to_csv("data2018/Atletas.csv", encoding="cp860")
-
-    df_status = pd.DataFrame(atletas["status"])
-    # print(df_status)
-    df_posicoes = pd.DataFrame(atletas["posicoes"])
-    # print(df_posicoes)
-    # print(df_atletas.info())
-
-    df_comp = df_atletas
-
-    cart = cartoleiro.Cartoleiro()
-    df_comp["team"] = df_comp["clube_id"].apply(lambda x: cart.df_teams.loc[str(x)].abreviacao)
-    df_comp["pos"] = df_comp["posicao_id"].apply(lambda x: df_posicoes[str(x)]["abreviacao"])
-    df_comp["status"] = df_comp["status_id"].apply(lambda x: df_status[str(x)]["nome"])
-
-    df_comp = df_comp[df_comp.status_id == 7]
-    print(df_comp.columns)
-    print(df_comp["team"].unique())
-
-    cart.calc_ranking()
-    cart.calc_round_indexes()
-    print("ATACANTES")
-    print(cart.select_players(df_comp, 5, "idx_attack")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                    "media_num", "roi"]].head(7))
-    print("MEIAS")
-    print(cart.select_players(df_comp, 4, "idx_attack")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                    "media_num", "roi"]].head(7))
-    print("LATERAIS")
-    print(cart.select_players(df_comp, 2, "idx_coach")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                   "media_num", "roi"]].head(5))
-    print("GOLEIROS")
-    print(cart.select_players(df_comp, 1, "idx_goalkeeper")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                        "media_num", "roi"]].head(3))
-    print("ZAGUEIROS")
-    print(cart.select_players(df_comp, 3, "idx_defense")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                     "media_num", "roi"]].head(5))
-    print("TECNICOS")
-    print(cart.select_players(df_comp, 6, "idx_coach")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                   "media_num", "roi"]].head(5))
-
-
-
-def main4():
     # console setup
     pd.set_option("display.width", None)
 
     # test if season is open, if not opened then load data from files
 
     cartola_data = cartola_api.read_data()
+    season, round, market_st, game_over = cartola_api.read_status_data()
+
     # if last round and market is closed (4) then there is no more plays on this season
     #if cartola_data["rodada_atual"] == 38 and cartola_data["status_mercado"] == 4:
-    if len(cartola_data) != 4:
+    if game_over:
         season_on = False
         print("Temporada ainda não começou :(")
         # load data from last round of the last season
-        # TODO change file path hardcode
-        df_atletas = pd.read_csv("data2019/rodada_38.csv", encoding="cp860")
+        df_atletas = pd.read_csv("data" + str(season - 1) + "/rodada_38.csv", encoding="cp860")
         # conv_status = {"Provável":7, "Contudido":5, "Dúvida":2, "Suspenso":3, "Nulo":6, "Contundido":5}
         # df_atletas["status_id"] = df_atletas["status_id"].apply(lambda x: conv_status[x])
         # conv_pos = {"gol":1, "zag":3, "lat":2, "mei":4, "ata":5, "tec":6}
         # df_atletas["posicao_id"] = df_atletas["posicao_id"].apply(lambda x: conv_pos[x])
-        # df_atletas.to_csv("data2019/rodada_38.csv", encoding="cp860")
     else:
         season_on = True
         print("Temporada aberta. Vamos jogar!")
         print("Dados salvos em: " + cartola_api.save_rawdata())
         df_atletas = pd.DataFrame(cartola_data["atletas"])
-        # TODO change file path hardcode
-        df_atletas.to_csv("data2019/Atletas.csv", encoding="cp860")
+        df_atletas.to_csv("data" + str(season) + "/atletas.csv", encoding="cp860")
 
         df_status = pd.DataFrame(cartola_data["status"])
         df_posicoes = pd.DataFrame(cartola_data["posicoes"])
@@ -450,8 +330,9 @@ def main4():
 
     # before next round calculations update tables Rounds e Scouts from last round
     # TODO make these update methods smarter, checking if update is needed
-    # cart.update_scout()
-    # cart.update_rounds()
+    if round >= 2:
+        cart.update_scout()
+        cart.update_rounds()
 
     # prepare players dataframe to calcs
 
@@ -491,16 +372,10 @@ def main4():
                                                             "media_num", "roi"]].head(5))
     else: # select players using price difference between the last and actual seasons
         print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a rodada passada...')
-        # TODO Calculate price difference for players selection on first rounds
 
         # read data from last season to compare
-        # TODO identity season to read the correct path and file automatically
-        # df_players_last_season = pd.read_csv("data2018/2017_scouts.csv", sep=";", encoding="cp860")
-        # df_players_last_season = pd.DataFrame(pd.read_csv("data2018/cartola2018-12-01.txt", encoding="cp860")["atletas"])
-        # df_players_last_season.columns = ["apelido", "atleta_id", "preco_txt", "preco"]
-        df_players_last_season = pd.read_csv("data2019/rodada_38.csv", encoding="cp860")
+        df_players_last_season = pd.read_csv("data" + str(season-1) + "/rodada_38.csv", encoding="cp860")
         df_players_last_season = df_players_last_season.set_index("atleta_id")
-        # print(df_players_last_season.info())
 
         print("ATACANTES")
         print(cart.select_players_pricediff(df_comp, 5, df_players_last_season, home_only=True)[["team", "apelido_actual", "dif_preco", "preco_num_actual",
@@ -522,4 +397,4 @@ def main4():
                                                                         "preco_num_last", "media_num_last", "var_preco"]].head(5))
 
 
-main4()
+main()
