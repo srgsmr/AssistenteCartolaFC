@@ -309,10 +309,6 @@ def main():
         print("Temporada ainda não começou :(")
         # load data from last round of the last season
         df_atletas = pd.read_csv("data" + str(season - 1) + "/rodada_38.csv", encoding="cp860")
-        # conv_status = {"Provável":7, "Contudido":5, "Dúvida":2, "Suspenso":3, "Nulo":6, "Contundido":5}
-        # df_atletas["status_id"] = df_atletas["status_id"].apply(lambda x: conv_status[x])
-        # conv_pos = {"gol":1, "zag":3, "lat":2, "mei":4, "ata":5, "tec":6}
-        # df_atletas["posicao_id"] = df_atletas["posicao_id"].apply(lambda x: conv_pos[x])
     else:
         season_on = True
         print("Temporada aberta. Vamos jogar!")
@@ -374,7 +370,7 @@ def main():
         print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a rodada passada...')
 
         # read data from last season to compare
-        df_players_last_season = pd.read_csv("data" + str(season-1) + "/rodada_38.csv", encoding="cp860")
+        df_players_last_season = pd.read_csv("data" + str(season - 1) + "/rodada_38.csv", encoding="cp860")
         df_players_last_season = df_players_last_season.set_index("atleta_id")
 
         print("ATACANTES")
