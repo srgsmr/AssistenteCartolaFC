@@ -327,8 +327,8 @@ def main():
     # before next round calculations update tables Rounds e Scouts from last round
     # TODO make these update methods smarter, checking if update is needed
     if round >= 2:
-        cart.update_scout()
-        cart.update_rounds()
+        cart.update_scout(round-1)
+        cart.update_rounds(round-1)
 
     # prepare players dataframe to calcs
 
@@ -367,7 +367,7 @@ def main():
         print(cart.select_players(df_comp, 6, "idx_coach")[["abreviacao", "apelido", "pos_pts", "preco_num",
                                                             "media_num", "roi"]].head(5))
     else: # select players using price difference between the last and actual seasons
-        print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a rodada passada...')
+        print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a temporada passada...')
 
         # read data from last season to compare
         df_players_last_season = pd.read_csv("data" + str(season - 1) + "/rodada_38.csv", encoding="cp860")
@@ -410,8 +410,9 @@ def main():
         df_coaches = df_coaches.set_index("clube_id_actual")[["team", "apelido_actual", "preco_num_actual"]]
         df_pos = df_comp.join(df_players_last_season, lsuffix="_actual", rsuffix="_last")
         df_pos = df_pos[["clube_id_actual", "media_num_last"]].dropna()
+        df_pos = df_pos.replace({"#CAMPO!":None})
         df_pos["media_num_last"] = df_pos["media_num_last"].astype("float")
-        df_mean_last_conf = df_pos.groupby("clube_id_actual").mean()
+        df_mean_last_conf = df_pos.groupby("clube_id_actual").mean(numeric_only=True)
         df_coaches = df_coaches.join(df_mean_last_conf)
         print(df_coaches.sort_values("media_num_last", ascending=False).head(5))
 

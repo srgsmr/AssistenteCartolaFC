@@ -38,8 +38,8 @@ class CartolaAPI:
             r = requests.get(self.urlstatus)
             status = json.loads(r.text)
             self.round = status["rodada_atual"]
-            self.market_status = status["status_mercado"]
-            self.game_over = status["game_over"]
+            self.market_status = status["status_mercado"] # 1 Aberto, 2 Fechado
+            self.game_over = status["game_over"] # True acabou a temporada
             self.season = status["temporada"]
         return self.season, self.round, self.market_status, self.game_over
 

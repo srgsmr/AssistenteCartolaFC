@@ -40,10 +40,13 @@ class Cartoleiro:
         # TODO remove path hardcode to read these files
         try:
             self.scout_table = pd.read_csv("data2019/scout_table.csv", encoding='utf_16')
+        except:
+            self.scout_table = pd.DataFrame()
+
+        try:
             self.rounds_table = pd.read_csv("data2019/rounds_table.csv", encoding='utf_16')
             self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]
         except:
-            self.scout_table = pd.DataFrame()
             self.rounds_table = pd.DataFrame()
         #self.read_last_round()
         #self.read_last_round()
@@ -67,10 +70,12 @@ class Cartoleiro:
                                            'url_confronto', 'url_transmissao', 'valida']]
 
 
-    def update_scout(self):
+    def update_scout(self, round):
 
-        #df_atletas = pd.DataFrame(cartola_api.read_data()['atletas'])
-        #cartola_api.load_rawdata("cartola2018-05-12.txt", "data2018/")
+        # TODO check if need to append new data
+        if self.scout_table["rodada_id"].max() >= round:
+            return self.scout_table
+
         df_atletas = pd.DataFrame(cartola_api.data['atletas'])
         l = []
         for index, atleta in df_atletas.iterrows():
@@ -88,22 +93,26 @@ class Cartoleiro:
             d['status_id'] = atleta['status_id']
             d['variacao_num'] = atleta['variacao_num']
             l.append(d)
-        # self.scout_table = pd.read_csv("data2019/scout_table.csv", encoding='utf_16')
         self.scout_table = self.scout_table.append(l)
 
         self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
-        self.scout_table.to_csv("data2018/scout_table.csv", encoding='utf_16')
+        self.scout_table.to_csv("data2019/scout_table.csv", encoding='utf_16')
         return self.scout_table
 
-    def update_rounds(self):
-        if self.rounds_table.shape[0] == 0:
-            round = 1
-        else:
-            round = self.rounds_table['rodada_id'].max() + 1
+    def update_rounds(self, round):
+        # if self.rounds_table.shape[0] == 0:
+        #    round = 1
+        # else:
+        #     round = self.rounds_table['rodada_id'].max() + 1
+        if not self.rounds_table.empty:
+            if self.rounds_table["rodada_id"].max() >= round:
+                return self.rounds_table
+
         df = pd.DataFrame(cartola_api.read_rounddata(round)['partidas'])
         df['rodada_id'] = round
         self.rounds_table = self.rounds_table.append(df)
-        self.rounds_table.to_csv("data2018/rounds_table.csv", encoding='utf_16')
+        # TODO remove hardcoded path
+        self.rounds_table.to_csv("data2019/rounds_table.csv", encoding='utf_16')
         return self.rounds_table
 
     def calc_ranking(self, top_score = 3):
