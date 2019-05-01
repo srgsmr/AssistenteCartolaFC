@@ -325,10 +325,15 @@ def main():
     cart = cartoleiro.Cartoleiro(season_on)
 
     # before next round calculations update tables Rounds e Scouts from last round
-    # TODO make these update methods smarter, checking if update is needed
     if round >= 2:
         cart.update_scout(round-1)
         cart.update_rounds(round-1)
+
+    # test to identify season first rounds
+    if round <= 4:
+        first_rounds = True
+    else:
+        first_rounds = False
 
     # prepare players dataframe to calcs
 
@@ -342,8 +347,6 @@ def main():
     # keep only players confirmed for the round (status_id == 7)
     df_comp = df_comp[df_comp.status_id == 7]
 
-    #test to identify season first rounds
-    first_rounds = True # force first round situation
 
     if not first_rounds: # calculate players stats for team selection
         cart.calc_ranking()

@@ -45,7 +45,7 @@ class Cartoleiro:
 
         try:
             self.rounds_table = pd.read_csv("data2019/rounds_table.csv", encoding='utf_16')
-            self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]
+            # self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]
         except:
             self.rounds_table = pd.DataFrame()
         #self.read_last_round()
@@ -72,7 +72,6 @@ class Cartoleiro:
 
     def update_scout(self, round):
 
-        # TODO check if need to append new data
         if self.scout_table["rodada_id"].max() >= round:
             return self.scout_table
 
@@ -100,10 +99,6 @@ class Cartoleiro:
         return self.scout_table
 
     def update_rounds(self, round):
-        # if self.rounds_table.shape[0] == 0:
-        #    round = 1
-        # else:
-        #     round = self.rounds_table['rodada_id'].max() + 1
         if not self.rounds_table.empty:
             if self.rounds_table["rodada_id"].max() >= round:
                 return self.rounds_table
@@ -173,12 +168,6 @@ class Cartoleiro:
         self.indexes["defense"] = 0.0
         self.indexes["goalkeeper"] = 0.0
 
-        if cheating == 14 :
-            # just cheating to simulate round 14 as the next round
-            round14 = {"clube_casa_id":[262,276,289,265,267,292,275,283,315,285],
-                       "clube_visitante_id":[263,264,327,287,284,266,282,293,277,354]}
-            self.next_round = pd.DataFrame.from_dict(round14)
-
         for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
             print("Mandante: " + str(host_id) + " Visitante: " + str(guest_id))
             host = str(host_id)
@@ -218,7 +207,8 @@ class Cartoleiro:
 
     def select_players(self, df_players, position, idx):
         df_pos = df_players[df_players.posicao_id == position]
-        df_pos = df_pos[df_pos.jogos_num >= 11]
+        # TODO create a formula for player selection by number of matches
+        df_pos = df_pos[df_pos.jogos_num >= 1]
 
         df_pos = df_pos.set_index("clube_id")
         df_idx = self.indexes.set_index("id")
