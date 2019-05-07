@@ -208,7 +208,7 @@ class Cartoleiro:
     def select_players(self, df_players, position, idx):
         df_pos = df_players[df_players.posicao_id == position]
         # TODO create a formula for player selection by number of matches
-        df_pos = df_pos[df_pos.jogos_num >= 1]
+        df_pos = df_pos[df_pos.jogos_num >= 2]
 
         df_pos = df_pos.set_index("clube_id")
         df_idx = self.indexes.set_index("id")
@@ -220,6 +220,9 @@ class Cartoleiro:
 
     def select_players_pricediff(self, df_players, position, df_players_last_season, home_only=False):
         df_pos = df_players[df_players.posicao_id == position]
+        # TODO create a formula for player selection by number of matches
+        df_pos = df_pos[df_pos.jogos_num >= 2]
+
         df_pos_las = df_players_last_season
         # df_pos_las = df_players_last_season[df_players_last_season.posicao_id == position and
         #                                    df_players_last_season.jogos_num >= 25]
