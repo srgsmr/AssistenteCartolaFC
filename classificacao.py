@@ -351,21 +351,35 @@ def main():
     if not first_rounds: # calculate players stats for team selection
         cart.calc_ranking()
         cart.calc_round_indexes()
+
+        pre_team = []
+        coach_team = []
+
         print("ATACANTES")
-        print(cart.select_players(df_comp, 5, "idx_attack")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                        "media_num", "roi"]].head(7))
+        coach_team.append(cart.select_players(df_comp, 5, "idx_attack"))
+        pre_team.append(coach_team[0].head(7))
+        print(pre_team[0][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+
         print("MEIAS")
-        print(cart.select_players(df_comp, 4, "idx_attack")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                             "media_num", "roi"]].head(7))
+        coach_team.append(cart.select_players(df_comp, 4, "idx_attack"))
+        pre_team.append(coach_team[1].head(7))
+        print(pre_team[1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+
         print("LATERAIS")
-        print(cart.select_players(df_comp, 2, "idx_coach")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                            "media_num", "roi"]].head(5))
+        coach_team.append(cart.select_players(df_comp, 2, "idx_coach"))
+        pre_team.append(coach_team[2].head(5))
+        print(pre_team[2][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+
         print("GOLEIROS")
-        print(cart.select_players(df_comp, 1, "idx_goalkeeper")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                                 "media_num", "roi"]].head(3))
+        coach_team.append(cart.select_players(df_comp, 1, "idx_goalkeeper"))
+        pre_team.append(coach_team[3].head(3))
+        print(pre_team[3][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+
         print("ZAGUEIROS")
-        print(cart.select_players(df_comp, 3, "idx_defense")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                              "media_num", "roi"]].head(5))
+        coach_team.append(cart.select_players(df_comp, 3, "idx_defense"))
+        pre_team.append(coach_team[4].head(5))
+        print(pre_team[4][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+
         print("TECNICOS")
         # print(cart.select_players(df_comp, 6, "idx_coach")[["abreviacao", "apelido", "pos_pts", "preco_num",
         #                                                    "media_num", "roi"]].head(5))
@@ -374,12 +388,25 @@ def main():
                                                             "media_num", "roi"]]
         # df_coaches = df_coaches.set_index("clube_id")
         # df_pos = df_comp.join(df_players_last_season, lsuffix="_actual", rsuffix="_last")
-        df_pos = df_comp[["clube_id", "media_num"]].dropna()
+        df_pos = pd.concat(coach_team)
+        df_pos = df_pos.reset_index()
+        df_pos.columns.values[0] = "clube_id"
+        df_pos = df_pos[["clube_id", "media_num", "pos_pts"]].dropna()
         # df_pos = df_pos.replace({"#CAMPO!": None})
-        # df_pos["media_num"] = df_pos["media_num"].astype("float")
+        df_pos["pos_pts"] = df_pos["pos_pts"].astype("float")
         df_mean_team = df_pos.groupby("clube_id").mean(numeric_only=True)
         df_coaches = df_coaches.join(df_mean_team, lsuffix="_coach", rsuffix="_groupby")
-        print(df_coaches.sort_values("media_num_groupby", ascending=False).head(5))
+        print(df_coaches.sort_values("pos_pts_groupby", ascending=False).head(5))
+
+        print("CAPITÃES")
+        df_selected = pd.concat(pre_team)
+        df_selected = df_selected.set_index("atleta_id")
+        df_captains = cart.scout_table[["atleta_id", "pontos_num"]]
+        df_captains = df_captains.groupby("atleta_id").median()
+        df_captains = df_selected.join(df_captains, lsuffix="_player", rsuffix="_median")
+        print(df_captains.sort_values("pontos_num_median", ascending=False)[["team", "apelido",
+                                                                                  "pontos_num_median"]].head(5))
+
 
     else: # select players using price difference between the last and actual seasons
         print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a temporada passada...')
@@ -391,40 +418,35 @@ def main():
         pre_team = []
 
         print("ATACANTES")
-        pre_team.append(cart.select_players_pricediff(df_comp, 5, df_players_last_season, home_only=True)[["team",
-                                                            "apelido_actual", "dif_preco", "preco_num_actual",
-                                                            "preco_num_last", "media_num_last", "var_preco"]].head(7))
+        pre_team.append(cart.select_players_pricediff(df_comp, 5, df_players_last_season, home_only=True).head(7))
         # df_temp = cart.select_players_pricediff(df_comp, 5, df_players_last_season, home_only=True)[["team",
         #                                                    "apelido_actual", "dif_preco", "preco_num_actual",
         #                                                    "preco_num_last", "media_num_last", "var_preco"]]
         # df_temp["comp"] = df_temp["dif_preco"] + df_temp["media_num_last"].astype("float")
         # df_temp = df_temp.sort_values("comp", ascending=False).head(7)
         # print(df_temp)
-        print(pre_team[0])
+        print(pre_team[0][["team", "apelido_actual", "dif_preco", "preco_num_actual", "preco_num_last",
+                           "media_num_last", "var_preco"]])
 
         print("MEIAS")
-        pre_team.append(cart.select_players_pricediff(df_comp, 4, df_players_last_season, home_only=True)[["team",
-                                                            "apelido_actual", "dif_preco", "preco_num_actual",
-                                                            "preco_num_last", "media_num_last", "var_preco"]].head(7))
-        print(pre_team[1])
+        pre_team.append(cart.select_players_pricediff(df_comp, 4, df_players_last_season, home_only=True).head(7))
+        print(pre_team[1][["team", "apelido_actual", "dif_preco", "preco_num_actual", "preco_num_last",
+                           "media_num_last", "var_preco"]])
 
         print("LATERAIS")
-        pre_team.append(cart.select_players_pricediff(df_comp, 2, df_players_last_season, home_only=True)[["team",
-                                                            "apelido_actual", "dif_preco", "preco_num_actual",
-                                                            "preco_num_last", "media_num_last", "var_preco"]].head(5))
-        print(pre_team[2])
+        pre_team.append(cart.select_players_pricediff(df_comp, 2, df_players_last_season, home_only=True).head(5))
+        print(pre_team[2][["team", "apelido_actual", "dif_preco", "preco_num_actual", "preco_num_last",
+                           "media_num_last", "var_preco"]])
 
         print("GOLEIROS")
-        pre_team.append(cart.select_players_pricediff(df_comp, 1, df_players_last_season, home_only=True)[["team",
-                                                            "apelido_actual", "dif_preco", "preco_num_actual",
-                                                            "preco_num_last", "media_num_last", "var_preco"]].head(3))
-        print(pre_team[3])
+        pre_team.append(cart.select_players_pricediff(df_comp, 1, df_players_last_season, home_only=True).head(3))
+        print(pre_team[3][["team", "apelido_actual", "dif_preco", "preco_num_actual", "preco_num_last",
+                           "media_num_last", "var_preco"]])
 
         print("ZAGUEIROS")
-        pre_team.append(cart.select_players_pricediff(df_comp, 3, df_players_last_season, home_only=True)[["team",
-                                                            "apelido_actual", "dif_preco", "preco_num_actual",
-                                                            "preco_num_last", "media_num_last", "var_preco"]].head(5))
-        print(pre_team[4])
+        pre_team.append(cart.select_players_pricediff(df_comp, 3, df_players_last_season, home_only=True).head(5))
+        print(pre_team[4][["team", "apelido_actual", "dif_preco", "preco_num_actual", "preco_num_last",
+                           "media_num_last", "var_preco"]])
 
         print("TECNICOS")
         df_coaches = cart.select_players_pricediff(df_comp, 6, df_players_last_season, home_only=True)
@@ -438,7 +460,9 @@ def main():
         print(df_coaches.sort_values("media_num_last", ascending=False).head(5))
 
         print("CAPITÃES")
-        print(pd.concat(pre_team).sort_values("media_num_last", ascending=False)[["team", "apelido_actual",
-                                                                                  "media_num_last"]].head(5))
+        df_selected = pd.concat(pre_team)
+        df_selected["mean_of_means"] = (df_selected["media_num_last"].astype("float") + df_selected["media_num_actual"])/2
+        print(df_selected.sort_values("mean_of_means", ascending=False)[["team", "apelido_actual",
+                                                                                  "mean_of_means"]].head(5))
 
 main()

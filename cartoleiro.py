@@ -210,6 +210,7 @@ class Cartoleiro:
         # TODO create a formula for player selection by number of matches
         df_pos = df_pos[df_pos.jogos_num >= 2]
 
+        df_pos.reset_index(level=0, inplace=True)
         df_pos = df_pos.set_index("clube_id")
         df_idx = self.indexes.set_index("id")
         df_pos = df_pos.join(df_idx, lsuffix="player", rsuffix="team")
