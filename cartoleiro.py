@@ -32,6 +32,7 @@ class Cartoleiro:
     rounds_table = pd.DataFrame()
     ranking = pd.DataFrame()
 
+
     def __init__(self, season_on=True):
         """ init teams data reading teams data from CartolaAPI """
         self.season_on = season_on
@@ -170,7 +171,7 @@ class Cartoleiro:
 
         for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
             # TODO change to print team alias
-            print("Mandante: " + str(host_id) + " Visitante: " + str(guest_id))
+            print(self.indexes["abreviacao"][str(host_id)] + " X " + self.indexes["abreviacao"][str(guest_id)])
             host = str(host_id)
             guest = str(guest_id)
             self.indexes.loc[host, "attack"] = (max(0.5, self.ranking.loc[host, "host_scored"]) / \
