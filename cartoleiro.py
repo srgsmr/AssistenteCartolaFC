@@ -169,6 +169,7 @@ class Cartoleiro:
         self.indexes["goalkeeper"] = 0.0
 
         for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
+            # TODO change to print team alias
             print("Mandante: " + str(host_id) + " Visitante: " + str(guest_id))
             host = str(host_id)
             guest = str(guest_id)
@@ -188,12 +189,18 @@ class Cartoleiro:
                                             self.ranking.loc[guest, "guest_matches"] * \
                                             max(0.5, self.ranking.loc[host, "host_scored"]) / \
                                             self.ranking.loc[host, "host_matches"])
-            self.indexes.loc[host, "goalkeeper"] = self.indexes.loc[host, "defense"] * \
-                                                   (self.indexes.loc[guest, "attack"] ** 2) * \
+            self.indexes.loc[host, "goalkeeper"] = (self.indexes.loc[host, "defense"] * 3 + \
+                                                   self.indexes.loc[guest, "attack"]) / 4 * \
                                                    max(0.1, self.ranking.loc[host, "total_nogoals_suf"])
-            self.indexes.loc[guest, "goalkeeper"] = self.indexes.loc[guest, "defense"] * \
-                                                   (self.indexes.loc[host, "attack"] ** 2) * \
+            self.indexes.loc[guest, "goalkeeper"] = (self.indexes.loc[guest, "defense"] * 3 + \
+                                                   self.indexes.loc[host, "attack"]) / 4 * \
                                                    max(0.1, self.ranking.loc[guest, "total_nogoals_suf"])
+            # self.indexes.loc[host, "goalkeeper"] = self.indexes.loc[host, "defense"] * \
+            #                                        (self.indexes.loc[guest, "attack"] ** 2) * \
+            #                                        max(0.1, self.ranking.loc[host, "total_nogoals_suf"])
+            # self.indexes.loc[guest, "goalkeeper"] = self.indexes.loc[guest, "defense"] * \
+            #                                        (self.indexes.loc[host, "attack"] ** 2) * \
+            #                                        max(0.1, self.ranking.loc[guest, "total_nogoals_suf"])
 
         total = self.indexes["attack"].sum()
         self.indexes["idx_attack"] = self.indexes["attack"] / total
@@ -201,7 +208,7 @@ class Cartoleiro:
         self.indexes["idx_defense"] = self.indexes["defense"] / total
         total = self.indexes["goalkeeper"].sum()
         self.indexes["idx_goalkeeper"] = self.indexes["goalkeeper"] / total
-        self.indexes["idx_coach"] = (self.indexes["idx_attack"] + self.indexes["idx_defense"])/2
+        self.indexes["idx_coach"] = (self.indexes["idx_attack"] + self.indexes["idx_defense"] * 2)/3
 
         #print(self.indexes.sort_values("idx_coach", ascending=False))
 
