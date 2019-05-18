@@ -112,7 +112,7 @@ class Cartoleiro:
         return self.rounds_table
 
     def calc_ranking(self, top_score = 3):
-        self.ranking = self.df_teams[["abreviacao", "id", "nome"]]
+        self.ranking = self.df_teams[["abreviacao", "id", "nome"]].copy(deep=True)
         self.ranking.set_index("id")
         self.ranking["host_matches"] = 0.0
         self.ranking["guest_matches"] = 0.0
@@ -125,8 +125,8 @@ class Cartoleiro:
 
         for team_id in self.df_teams[["id"]].get_values():
             id = str(team_id[0])
-            df_host = self.rounds_table.loc[self.rounds_table["clube_casa_id"] == team_id[0]]
-            df_guest = self.rounds_table.loc[self.rounds_table["clube_visitante_id"] == team_id[0]]
+            df_host = self.rounds_table.loc[self.rounds_table["clube_casa_id"] == team_id[0]].copy(deep=True)
+            df_guest = self.rounds_table.loc[self.rounds_table["clube_visitante_id"] == team_id[0]].copy(deep=True)
             self.ranking.loc[id, "host_matches"] = df_host["clube_casa_id"].count()
             self.ranking.loc[id, "guest_matches"] = df_guest["clube_visitante_id"].count()
             self.ranking.loc[id, "host_scored"] = df_host["placar_oficial_mandante"].sum()
@@ -163,7 +163,7 @@ class Cartoleiro:
 
     def calc_round_indexes(self, cheating = None):
         self.read_next_round()
-        self.indexes = self.df_teams[["abreviacao", "id", "nome"]]
+        self.indexes = self.df_teams[["abreviacao", "id", "nome"]].copy(deep=True)
         self.indexes.set_index("id")
         self.indexes["attack"] = None
         self.indexes["defense"] = 0.0
