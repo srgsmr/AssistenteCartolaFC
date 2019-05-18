@@ -355,30 +355,30 @@ def main():
         pre_team = []
         coach_team = []
 
-        print("ATACANTES")
-        coach_team.append(cart.select_players(df_comp, 5, "idx_attack"))
-        pre_team.append(coach_team[0].head(7))
-        print(pre_team[0][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
-
-        print("MEIAS")
-        coach_team.append(cart.select_players(df_comp, 4, "idx_attack"))
-        pre_team.append(coach_team[1].head(7))
-        print(pre_team[1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
-
-        print("LATERAIS")
-        coach_team.append(cart.select_players(df_comp, 2, "idx_coach"))
-        pre_team.append(coach_team[2].head(5))
-        print(pre_team[2][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
-
         print("GOLEIROS")
         coach_team.append(cart.select_players(df_comp, 1, "idx_goalkeeper"))
-        pre_team.append(coach_team[3].head(3))
-        print(pre_team[3][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+        pre_team.append(coach_team[-1].head(3))
+        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+
+        print("ATACANTES")
+        coach_team.append(cart.select_players(df_comp, 5, "idx_attack"))
+        pre_team.append(coach_team[-1].head(7))
+        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
 
         print("ZAGUEIROS")
         coach_team.append(cart.select_players(df_comp, 3, "idx_defense"))
-        pre_team.append(coach_team[4].head(5))
-        print(pre_team[4][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+        pre_team.append(coach_team[-1].head(5))
+        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+
+        print("MEIAS")
+        coach_team.append(cart.select_players(df_comp, 4, "idx_attack"))
+        pre_team.append(coach_team[-1].head(7))
+        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+
+        print("LATERAIS")
+        coach_team.append(cart.select_players(df_comp, 2, "idx_coach"))
+        pre_team.append(coach_team[-1].head(5))
+        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
 
         print("TECNICOS")
         # print(cart.select_players(df_comp, 6, "idx_coach")[["abreviacao", "apelido", "pos_pts", "preco_num",
