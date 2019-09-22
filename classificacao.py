@@ -401,7 +401,18 @@ def main():
         print("CAPITÃES")
         df_selected = pd.concat(pre_team)
         df_selected = df_selected.set_index("atleta_id")
-        df_captains = cart.scout_table[["atleta_id", "pontos_num"]]
+        df_players_temp = cart.scout_table
+        df_players_list = df_players_temp.set_index(["atleta_id", "rodada_id"])
+        df_captains = pd.DataFrame()
+        for player in df_players_list.index.get_level_values(0).unique():
+            # .copy(deep=True) to supress SettingWithCopyWarning
+            df = df_players_temp[df_players_temp.atleta_id == player].copy(deep=True)
+            # test to flag the player who plays in a specific round
+            df["jogou"] = (df["jogos_num"].diff() != 0) & (df["jogos_num"] != 0)
+            df_captains = pd.concat([df_captains, df], axis=0)
+        # discard rows where player didnt play the match
+        df_captains = df_captains[df_captains.jogou][["atleta_id", "pontos_num"]]
+
         df_captains = df_captains.groupby("atleta_id").median()
         df_captains = df_selected.join(df_captains, lsuffix="_player", rsuffix="_median")
         print(df_captains.sort_values("pontos_num_median", ascending=False)[["team", "apelido",

@@ -170,8 +170,6 @@ class Cartoleiro:
         self.indexes["goalkeeper"] = 0.0
 
         for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
-            # TODO change to print team alias
-            print(self.indexes["abreviacao"][str(host_id)] + " X " + self.indexes["abreviacao"][str(guest_id)])
             host = str(host_id)
             guest = str(guest_id)
             self.indexes.loc[host, "attack"] = (max(0.5, self.ranking.loc[host, "host_scored"]) / \
@@ -211,12 +209,25 @@ class Cartoleiro:
         self.indexes["idx_goalkeeper"] = self.indexes["goalkeeper"] / total
         self.indexes["idx_coach"] = (self.indexes["idx_attack"] + self.indexes["idx_defense"] * 2)/3
 
-        #print(self.indexes.sort_values("idx_coach", ascending=False))
+        for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
+            host = str(host_id)
+            guest = str(guest_id)
+            print(self.indexes["abreviacao"][host] + " (" +
+                  "{:1.2f}".format(self.indexes["idx_attack"][host]) + "/"
+                  "{:1.2f}".format(self.indexes["idx_defense"][host]) + "/"
+                  "{:1.2f}".format(self.indexes["idx_goalkeeper"][host]) + "/"
+                  "{:1.2f}".format(self.indexes["idx_coach"][host]) +
+                  ") X (" +
+                  "{:1.2f}".format(self.indexes["idx_attack"][guest]) + "/"
+                  "{:1.2f}".format(self.indexes["idx_defense"][guest]) + "/"
+                  "{:1.2f}".format(self.indexes["idx_goalkeeper"][guest]) + "/"
+                  "{:1.2f}".format(self.indexes["idx_coach"][guest]) + ") " +
+                  self.indexes["abreviacao"][guest])
 
     def select_players(self, df_players, position, idx):
         df_pos = df_players[df_players.posicao_id == position]
         # TODO create a formula for player selection by number of matches
-        df_pos = df_pos[df_pos.jogos_num >= 2]
+        df_pos = df_pos[df_pos.jogos_num >= 5]
 
         df_pos.reset_index(level=0, inplace=True)
         df_pos = df_pos.set_index("clube_id")
@@ -230,7 +241,7 @@ class Cartoleiro:
     def select_players_pricediff(self, df_players, position, df_players_last_season, home_only=False):
         df_pos = df_players[df_players.posicao_id == position]
         # TODO create a formula for player selection by number of matches
-        df_pos = df_pos[df_pos.jogos_num >= 2]
+        df_pos = df_pos[df_pos.jogos_num >= 4]
 
         df_pos_las = df_players_last_season
         # df_pos_las = df_players_last_season[df_players_last_season.posicao_id == position and
@@ -260,3 +271,5 @@ class Cartoleiro:
         df_pos = df_pos.sort_values("dif_preco", ascending=False)
 
         return df_pos
+
+
