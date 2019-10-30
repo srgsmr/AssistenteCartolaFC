@@ -416,7 +416,7 @@ def main():
         df_captains = df_captains.groupby("atleta_id").median()
         df_captains = df_selected.join(df_captains, lsuffix="_player", rsuffix="_median")
         print(df_captains.sort_values("pontos_num_median", ascending=False)[["team", "apelido",
-                                                                                  "pontos_num_median"]].head(5))
+                                                                                  "pontos_num_median"]].head(8))
 
 
     else: # select players using price difference between the last and actual seasons
