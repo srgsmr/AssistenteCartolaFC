@@ -1,0 +1,9 @@
+<changelist name="Uncommitted_changes_before_Update_at_06_11_2019_10_55_[Default]" date="1573044940255" recycled="false" toDelete="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_06_11_2019_10_55_[Default]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 06/11/2019 10:55 [Default]" />
+  <binary>
+    <option name="BEFORE_PATH" value="data2019/atletas.csv" />
+    <option name="AFTER_PATH" value="data2019/atletas.csv" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_06_11_2019_10_55_[Default]/atletas.csv" />
+  </binary>
+</changelist>
