@@ -74,6 +74,6 @@ class CartolaAPI:
         with open(foldername + filename) as json_data:
             self.data = json.load(json_data)
             json_data.close()
-            return True
+            return self.data
 
 cartola_api = CartolaAPI()
