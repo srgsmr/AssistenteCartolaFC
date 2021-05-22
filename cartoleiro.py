@@ -40,12 +40,12 @@ class Cartoleiro:
             self.df_teams = self.read_teams()
         # TODO remove path hardcode to read these files
         try:
-            self.scout_table = pd.read_csv("data2019/scout_table.csv", encoding='utf_16')
+            self.scout_table = pd.read_csv("data2020/scout_table.csv", encoding='utf_16')
         except:
             self.scout_table = pd.DataFrame()
 
         try:
-            self.rounds_table = pd.read_csv("data2019/rounds_table.csv", encoding='utf_16')
+            self.rounds_table = pd.read_csv("data2020/rounds_table.csv", encoding='utf_16')
             # self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]
         except:
             self.rounds_table = pd.DataFrame()
@@ -68,7 +68,7 @@ class Cartoleiro:
         # removing columns aproveitamento_mandante aproveitamento_visitante clube_casa_posicao, clube_visitante_posicao
         self.next_round = self.next_round[['clube_casa_id', 'clube_visitante_id', 'local', 'partida_data',
                                            'partida_id', 'placar_oficial_mandante', 'placar_oficial_visitante',
-                                           'url_confronto', 'url_transmissao', 'valida']]
+                                           'transmissao', 'valida']]
 
 
     def update_scout(self, round):
@@ -96,7 +96,7 @@ class Cartoleiro:
         self.scout_table = self.scout_table.append(l)
 
         self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
-        self.scout_table.to_csv("data2019/scout_table.csv", encoding='utf_16')
+        self.scout_table.to_csv("data2020/scout_table.csv", encoding='utf_16')
         return self.scout_table
 
     def update_rounds(self, round):
@@ -108,7 +108,7 @@ class Cartoleiro:
         df['rodada_id'] = round
         self.rounds_table = self.rounds_table.append(df)
         # TODO remove hardcoded path
-        self.rounds_table.to_csv("data2019/rounds_table.csv", encoding='utf_16')
+        self.rounds_table.to_csv("data2020/rounds_table.csv", encoding='utf_16')
         return self.rounds_table
 
     def calc_ranking(self, top_score = 3):
@@ -227,7 +227,7 @@ class Cartoleiro:
     def select_players(self, df_players, position, idx):
         df_pos = df_players[df_players.posicao_id == position]
         # TODO create a formula for player selection by number of matches
-        df_pos = df_pos[df_pos.jogos_num >= 5]
+        df_pos = df_pos[df_pos.jogos_num >= 10]
 
         df_pos.reset_index(level=0, inplace=True)
         df_pos = df_pos.set_index("clube_id")
