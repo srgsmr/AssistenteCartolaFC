@@ -330,7 +330,7 @@ def main():
         cart.update_rounds(round-1)
 
     # test to identify season first rounds
-    if round <= 4:
+    if round <= 3:
         first_rounds = True
     else:
         first_rounds = False

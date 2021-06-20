@@ -40,12 +40,12 @@ class Cartoleiro:
             self.df_teams = self.read_teams()
         # TODO remove path hardcode to read these files
         try:
-            self.scout_table = pd.read_csv("data2020/scout_table.csv", encoding='utf_16')
+            self.scout_table = pd.read_csv("data2021/scout_table.csv", encoding='utf_16')
         except:
             self.scout_table = pd.DataFrame()
 
         try:
-            self.rounds_table = pd.read_csv("data2020/rounds_table.csv", encoding='utf_16')
+            self.rounds_table = pd.read_csv("data2021/rounds_table.csv", encoding='utf_16')
             # self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]
         except:
             self.rounds_table = pd.DataFrame()
@@ -96,19 +96,34 @@ class Cartoleiro:
         self.scout_table = self.scout_table.append(l)
 
         self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
-        self.scout_table.to_csv("data2020/scout_table.csv", encoding='utf_16')
+        self.scout_table.to_csv("data2021/scout_table.csv", encoding='utf_16')
         return self.scout_table
 
-    def update_rounds(self, round):
-        if not self.rounds_table.empty:
-            if self.rounds_table["rodada_id"].max() >= round:
-                return self.rounds_table
 
-        df = pd.DataFrame(cartola_api.read_rounddata(round)['partidas'])
-        df['rodada_id'] = round
-        self.rounds_table = self.rounds_table.append(df)
-        # TODO remove hardcoded path
-        self.rounds_table.to_csv("data2020/rounds_table.csv", encoding='utf_16')
+    def restore_past_rounds(self, start, end):
+        for i in range(start, end):
+            df = pd.DataFrame(cartola_api.read_rounddata(i)['partidas'])
+            df['rodada_id'] = i
+            self.rounds_table = self.rounds_table.append(df)
+        return
+
+    def update_rounds(self, round):
+        if self.rounds_table.empty:
+            # there are no rounds saved, lets restore all from round 1
+            self.restore_past_rounds(1, round + 1)
+            # TODO remove hardcoded path
+            self.rounds_table.to_csv("data2021/rounds_table.csv", encoding='utf_16')
+        else:
+            last_saved_round = self.rounds_table["rodada_id"].max()
+            if last_saved_round < round:
+                # there are some rounds missing, lets restore them
+                self.restore_past_rounds(last_saved_round + 1, round + 1)
+                # TODO remove hardcoded path
+                self.rounds_table.to_csv("data2021/rounds_table.csv", encoding='utf_16')
+            elif last_saved_round > round:
+                # that's uncommon, maybe something wrong with data
+                print("WARNING - rounds_table.csv tem mais rodadas salvas do que a atual!")
+
         return self.rounds_table
 
     def calc_ranking(self, top_score = 3):
@@ -172,19 +187,33 @@ class Cartoleiro:
         for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
             host = str(host_id)
             guest = str(guest_id)
-            self.indexes.loc[host, "attack"] = (max(0.5, self.ranking.loc[host, "host_scored"]) / \
+            if self.ranking.loc[host, "host_matches"] == 0 or self.ranking.loc[guest, "guest_matches"] == 0:
+                self.indexes.loc[host, "attack"] = 0
+            else:
+                self.indexes.loc[host, "attack"] = (max(0.5, self.ranking.loc[host, "host_scored"]) / \
                                                self.ranking.loc[host, "host_matches"]) * \
                                                (max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
                                                self.ranking.loc[guest, "guest_matches"])
-            self.indexes.loc[guest, "attack"] = (max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
+
+            if self.ranking.loc[guest, "guest_matches"] == 0 or self.ranking.loc[host, "host_matches"] == 0:
+                self.indexes.loc[guest, "attack"] = 0
+            else:
+
+                self.indexes.loc[guest, "attack"] = (max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
                                                self.ranking.loc[guest, "guest_matches"]) * \
                                                 (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
                                                self.ranking.loc[host, "host_matches"])
-            self.indexes.loc[host, "defense"] = max(0.1, self.ranking.loc[host, "host_nogoals_suf"]) / (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
+            if self.ranking.loc[host, "host_matches"] == 0 or self.ranking.loc[guest, "guest_matches"] == 0:
+                self.indexes.loc[host, "defense"] = 0
+            else:
+                self.indexes.loc[host, "defense"] = max(0.1, self.ranking.loc[host, "host_nogoals_suf"]) / (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
                                            self.ranking.loc[host, "host_matches"] * \
                                            max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
                                            self.ranking.loc[guest, "guest_matches"])
-            self.indexes.loc[guest, "defense"] = max(0.1, self.ranking.loc[guest, "guest_nogoals_suf"]) / (max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
+            if self.ranking.loc[guest, "guest_matches"] == 0 or self.ranking.loc[host, "host_matches"] == 0:
+                self.indexes.loc[guest, "defense"] = 0
+            else:
+                self.indexes.loc[guest, "defense"] = max(0.1, self.ranking.loc[guest, "guest_nogoals_suf"]) / (max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
                                             self.ranking.loc[guest, "guest_matches"] * \
                                             max(0.5, self.ranking.loc[host, "host_scored"]) / \
                                             self.ranking.loc[host, "host_matches"])
@@ -227,7 +256,7 @@ class Cartoleiro:
     def select_players(self, df_players, position, idx):
         df_pos = df_players[df_players.posicao_id == position]
         # TODO create a formula for player selection by number of matches
-        df_pos = df_pos[df_pos.jogos_num >= 10]
+        df_pos = df_pos[df_pos.jogos_num >= 2]
 
         df_pos.reset_index(level=0, inplace=True)
         df_pos = df_pos.set_index("clube_id")
@@ -236,6 +265,7 @@ class Cartoleiro:
         df_pos["pos_pts"] = df_pos["media_num"] * df_pos[idx]
         df_pos["roi"] = df_pos["pos_pts"] / df_pos["preco_num"]
         df_pos = df_pos.sort_values("pos_pts", ascending=False)
+        # df_pos = df_pos.sort_values("roi", ascending=False)
         return df_pos
 
     def select_players_pricediff(self, df_players, position, df_players_last_season, home_only=False):
