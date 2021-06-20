@@ -3,6 +3,7 @@ import json
 from datetime import date
 
 class CartolaAPI:
+
     """ CartolaAPI - class to extract and handle data from the CartolaFC site """
     game_over: bool
 
@@ -13,21 +14,17 @@ class CartolaAPI:
 
     def read_data(self):
         """ reads json data of actual round from CartolaFC API"""
-
         r = requests.get(self.urlmarket)
         self.data = json.loads(r.text)
         return self.data
 
     def read_rounddata(self, r=0):
         """ reads json data of matches of a specific round r from CartolaFC API"""
-
-        #ro = int(r)
         if (r >= 1) and (r <= 38):
             strround = str(r)
         else:
             strround = ""
 
-        url = self.urlmatches+strround
         r = requests.get(self.urlmatches+strround)
         self.matchesdata = json.loads(r.text)
         return self.matchesdata
@@ -45,15 +42,13 @@ class CartolaAPI:
 
     def save_rawdata(self, filename="", foldername=""):
         """ saves data as readed to csv file"""
-
-        today = date.today()
-        season, round, market_st, game_over = self.read_status_data()
+        self.read_status_data()
 
         if foldername == "":
-            foldername = "data" + str(season) + "/"
+            foldername = "data" + str(self.season) + "/"
 
         if filename == "":
-            filename = "mercado_" + str(season) + "_" + str(round) + ".txt"
+            filename = "mercado_" + str(self.season) + "_" + str(self.round) + ".txt"
 
         file = open(foldername + filename, 'w', encoding='utf8')
         file.write(json.dumps(self.data))
@@ -63,7 +58,6 @@ class CartolaAPI:
 
     def load_rawdata(self, filename="", foldername=""):
         """ loads data from csv file"""
-
         if filename == "":
             return False
 
