@@ -367,7 +367,7 @@ def main():
 
         print("ZAGUEIROS")
         coach_team.append(cart.select_players(df_comp, 3, "idx_defense"))
-        pre_team.append(coach_team[-1].head(5))
+        pre_team.append(coach_team[-1].head(8))
         print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
 
         print("MEIAS")
@@ -416,8 +416,16 @@ def main():
         df_captains = df_captains.groupby("atleta_id").median()
         df_captains = df_selected.join(df_captains, lsuffix="_player", rsuffix="_median")
         print(df_captains.sort_values("pontos_num_median", ascending=False)[["team", "apelido",
-                                                                                  "pontos_num_median"]].head(8))
+                                                                                  "pontos_num_median"]].head(16))
 
+        print("RESERVAS")
+        df_substitutes = pd.concat(coach_team).set_index('atleta_id')
+        for pos, qtd in [(1, 3), (5, 7), (3, 8), (4, 7), (2, 5)]:
+            df2 = df_substitutes.drop(df_substitutes[df_substitutes.posicao_id != pos].index)
+            lowest_price = min(df2.head(qtd)["preco_num"])
+            df2 = df2.drop(df2.head(qtd).index)
+            df3 = df2.drop(df2[df2.preco_num > lowest_price].index)
+            print(df3.head(1)[["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
 
     else: # select players using price difference between the last and actual seasons
         print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a temporada passada...')

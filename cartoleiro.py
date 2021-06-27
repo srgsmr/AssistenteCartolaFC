@@ -70,35 +70,86 @@ class Cartoleiro:
                                            'partida_id', 'placar_oficial_mandante', 'placar_oficial_visitante',
                                            'transmissao', 'valida']]
 
+    def restore_past_scouts(self, start, end):
+        for i in range(start, end):
+            if i < (end - 1):
+                # to recover scouts from older rounds we need to read from files
+                foldername = "data" + str(cartola_api.season) + "/"
+                filename = "mercado_" + str(cartola_api.season) + "_" + str(i + 1) + ".txt"
+
+                cartola_api.load_rawdata(filename, foldername)
+            else:
+                # the actual scouts we read from the API
+                cartola_api.read_data()
+
+            df_atletas = pd.DataFrame(cartola_api.data['atletas'])
+            l = []
+            for index, atleta in df_atletas.iterrows():
+                if atleta['scout'] is None:
+                    d = {}
+                else:
+                    d = atleta['scout']
+                d['atleta_id'] = atleta['atleta_id']
+                d['rodada_id'] = atleta['rodada_id']
+                d['apelido'] = atleta['apelido']
+                d['clube_id'] = atleta['clube_id']
+                d['jogos_num'] = atleta['jogos_num']
+                d['media_num'] = atleta['media_num']
+                d['pontos_num'] = atleta['pontos_num']
+                d['posicao_id'] = atleta['posicao_id']
+                d['preco_num'] = atleta['preco_num']
+                d['status_id'] = atleta['status_id']
+                d['variacao_num'] = atleta['variacao_num']
+                l.append(d)
+            self.scout_table = self.scout_table.append(l)
+        return
+
 
     def update_scout(self, round):
 
-        if self.scout_table["rodada_id"].max() >= round:
-            return self.scout_table
+        # if self.scout_table["rodada_id"].max() >= round:
+        #     return self.scout_table
+        #
+        # df_atletas = pd.DataFrame(cartola_api.data['atletas'])
+        # l = []
+        # for index, atleta in df_atletas.iterrows():
+        #     #d = {}
+        #     d = atleta['scout']
+        #     d['atleta_id'] = atleta['atleta_id']
+        #     d['rodada_id'] = atleta['rodada_id']
+        #     d['apelido'] = atleta['apelido']
+        #     d['clube_id'] = atleta['clube_id']
+        #     d['jogos_num'] = atleta['jogos_num']
+        #     d['media_num'] = atleta['media_num']
+        #     d['pontos_num'] = atleta['pontos_num']
+        #     d['posicao_id'] = atleta['posicao_id']
+        #     d['preco_num'] = atleta['preco_num']
+        #     d['status_id'] = atleta['status_id']
+        #     d['variacao_num'] = atleta['variacao_num']
+        #     l.append(d)
+        # self.scout_table = self.scout_table.append(l)
+        #
+        # self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
+        # self.scout_table.to_csv("data2021/scout_table.csv", encoding='utf_16')
+        # return self.scout_table
 
-        df_atletas = pd.DataFrame(cartola_api.data['atletas'])
-        l = []
-        for index, atleta in df_atletas.iterrows():
-            #d = {}
-            d = atleta['scout']
-            d['atleta_id'] = atleta['atleta_id']
-            d['rodada_id'] = atleta['rodada_id']
-            d['apelido'] = atleta['apelido']
-            d['clube_id'] = atleta['clube_id']
-            d['jogos_num'] = atleta['jogos_num']
-            d['media_num'] = atleta['media_num']
-            d['pontos_num'] = atleta['pontos_num']
-            d['posicao_id'] = atleta['posicao_id']
-            d['preco_num'] = atleta['preco_num']
-            d['status_id'] = atleta['status_id']
-            d['variacao_num'] = atleta['variacao_num']
-            l.append(d)
-        self.scout_table = self.scout_table.append(l)
+        if self.scout_table.empty:
+            # there are no scouts saved, lets restore all from round 1
+            self.restore_past_scouts(1, round + 1)
+            # TODO remove hardcoded path
+            self.scout_table.to_csv("data2021/scout_table.csv", encoding='utf_16')
+        else:
+            last_saved_round = self.scout_table["rodada_id"].max()
+            if last_saved_round < round:
+                # there are some scouts missing, lets restore them
+                self.restore_past_scouts(last_saved_round + 1, round + 1)
+                # TODO remove hardcoded path
+                self.scout_table.to_csv("data2021/scout_table.csv", encoding='utf_16')
+            elif last_saved_round > round:
+                # that's uncommon, maybe something wrong with data
+                print("WARNING - scouts_table.csv tem mais rodadas salvas do que a atual!")
 
-        self.scout_table = self.scout_table.set_index(['rodada_id', 'atleta_id'])
-        self.scout_table.to_csv("data2021/scout_table.csv", encoding='utf_16')
         return self.scout_table
-
 
     def restore_past_rounds(self, start, end):
         for i in range(start, end):
@@ -256,7 +307,7 @@ class Cartoleiro:
     def select_players(self, df_players, position, idx):
         df_pos = df_players[df_players.posicao_id == position]
         # TODO create a formula for player selection by number of matches
-        df_pos = df_pos[df_pos.jogos_num >= 2]
+        df_pos = df_pos[df_pos.jogos_num >= 3]
 
         df_pos.reset_index(level=0, inplace=True)
         df_pos = df_pos.set_index("clube_id")
