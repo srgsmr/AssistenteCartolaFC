@@ -307,7 +307,7 @@ class Cartoleiro:
     def select_players(self, df_players, position, idx):
         df_pos = df_players[df_players.posicao_id == position]
         # TODO create a formula for player selection by number of matches
-        df_pos = df_pos[df_pos.jogos_num >= 3]
+        df_pos = df_pos[df_pos.jogos_num >= 4]
 
         df_pos.reset_index(level=0, inplace=True)
         df_pos = df_pos.set_index("clube_id")

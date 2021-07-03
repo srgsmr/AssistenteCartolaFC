@@ -344,8 +344,8 @@ def main():
         df_comp["pos"] = df_comp["posicao_id"].apply(lambda x: df_posicoes[str(x)]["abreviacao"])
         df_comp["status"] = df_comp["status_id"].apply(lambda x: df_status[str(x)]["nome"])
 
-    # keep only players confirmed for the round (status_id == 7)
-    df_comp = df_comp[df_comp.status_id == 7]
+    # keep only players confirmed for the round (status_id == 7) and players in doubt to play (status_id == 2)
+    df_comp = df_comp[df_comp.status_id == 7].append(df_comp[df_comp.status_id == 2])
 
 
     if not first_rounds: # calculate players stats for team selection
@@ -358,27 +358,27 @@ def main():
         print("GOLEIROS")
         coach_team.append(cart.select_players(df_comp, 1, "idx_goalkeeper"))
         pre_team.append(coach_team[-1].head(3))
-        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]])
 
         print("ATACANTES")
         coach_team.append(cart.select_players(df_comp, 5, "idx_attack"))
         pre_team.append(coach_team[-1].head(7))
-        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]])
 
         print("ZAGUEIROS")
         coach_team.append(cart.select_players(df_comp, 3, "idx_defense"))
-        pre_team.append(coach_team[-1].head(8))
-        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+        pre_team.append(coach_team[-1].head(5))
+        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]])
 
         print("MEIAS")
         coach_team.append(cart.select_players(df_comp, 4, "idx_attack"))
         pre_team.append(coach_team[-1].head(7))
-        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]])
 
         print("LATERAIS")
         coach_team.append(cart.select_players(df_comp, 2, "idx_coach"))
         pre_team.append(coach_team[-1].head(5))
-        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]])
 
         print("TECNICOS")
         # print(cart.select_players(df_comp, 6, "idx_coach")[["abreviacao", "apelido", "pos_pts", "preco_num",
@@ -416,11 +416,11 @@ def main():
         df_captains = df_captains.groupby("atleta_id").median()
         df_captains = df_selected.join(df_captains, lsuffix="_player", rsuffix="_median")
         print(df_captains.sort_values("pontos_num_median", ascending=False)[["team", "apelido",
-                                                                                  "pontos_num_median"]].head(16))
+                                                                                  "pontos_num_median"]].head(8))
 
         print("RESERVAS")
         df_substitutes = pd.concat(coach_team).set_index('atleta_id')
-        for pos, qtd in [(1, 3), (5, 7), (3, 8), (4, 7), (2, 5)]:
+        for pos, qtd in [(1, 3), (5, 7), (3, 5), (4, 7), (2, 5)]:
             df2 = df_substitutes.drop(df_substitutes[df_substitutes.posicao_id != pos].index)
             lowest_price = min(df2.head(qtd)["preco_num"])
             df2 = df2.drop(df2.head(qtd).index)
