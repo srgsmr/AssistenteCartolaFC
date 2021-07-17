@@ -355,48 +355,40 @@ def main():
         pre_team = []
         coach_team = []
 
-        print("GOLEIROS")
-        coach_team.append(cart.select_players(df_comp, 1, "idx_goalkeeper"))
-        pre_team.append(coach_team[-1].head(3))
-        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]])
+        goalkeeper_param = {"label": "GOLEIROS", "code": 1, "idx": "idx_goalkeeper", "qty": 3, "qty_bk": 1}
+        attack_param = {"label": "ATACANTES", "code": 5, "idx": "idx_attack", "qty": 7, "qty_bk": 2}
+        defense_param = {"label": "ZAGUEIROS", "code": 3, "idx": "idx_defense", "qty": 5, "qty_bk": 1}
+        midfield_param = {"label": "MEIAS", "code": 4, "idx": "idx_attack", "qty": 7, "qty_bk": 2}
+        sidefield_param = {"label": "LATERAIS", "code": 2, "idx": "idx_coach", "qty": 5, "qty_bk": 2}
+        coach_param = {"label": "TÉCNICOS", "code": 6, "idx": "idx_coach", "qty": 5, "qty_bk": 0}
+        columns_to_print = ["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]
 
-        print("ATACANTES")
-        coach_team.append(cart.select_players(df_comp, 5, "idx_attack"))
-        pre_team.append(coach_team[-1].head(7))
-        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]])
+        for param in [goalkeeper_param, attack_param, defense_param, midfield_param, sidefield_param, coach_param]:
+            print("* " + param["label"] + " ****************************************************************************")
+            rank_players = cart.select_players(df_comp, param["code"], param["idx"])
+            if param["code"] != 6:
+                coach_team.append(rank_players)
+                param["players"] = coach_team[-1].head(param["qty"])
+                print(param["players"][columns_to_print])
+                pre_team.append(param["players"])
+                print("----------------------banco--------------------------------------------------------------------")
+                lowest_price = min(param["players"]["preco_num"])
+                df2 = rank_players.drop(param["players"].index)
+                df3 = df2.drop(df2[df2.preco_num > lowest_price].index)
+                print(df3.head(param["qty_bk"])[columns_to_print])
 
-        print("ZAGUEIROS")
-        coach_team.append(cart.select_players(df_comp, 3, "idx_defense"))
-        pre_team.append(coach_team[-1].head(5))
-        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]])
-
-        print("MEIAS")
-        coach_team.append(cart.select_players(df_comp, 4, "idx_attack"))
-        pre_team.append(coach_team[-1].head(7))
-        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]])
-
-        print("LATERAIS")
-        coach_team.append(cart.select_players(df_comp, 2, "idx_coach"))
-        pre_team.append(coach_team[-1].head(5))
-        print(pre_team[-1][["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]])
-
-        print("TECNICOS")
-        # print(cart.select_players(df_comp, 6, "idx_coach")[["abreviacao", "apelido", "pos_pts", "preco_num",
-        #                                                    "media_num", "roi"]].head(5))
-
-        df_coaches = cart.select_players(df_comp, 6, "idx_coach")[["abreviacao", "apelido", "pos_pts", "preco_num",
-                                                            "media_num", "roi"]]
-        # df_coaches = df_coaches.set_index("clube_id")
-        # df_pos = df_comp.join(df_players_last_season, lsuffix="_actual", rsuffix="_last")
-        df_pos = pd.concat(coach_team)
-        df_pos = df_pos.reset_index()
-        df_pos.columns.values[0] = "clube_id"
-        df_pos = df_pos[["clube_id", "media_num", "pos_pts"]].dropna()
-        # df_pos = df_pos.replace({"#CAMPO!": None})
-        df_pos["pos_pts"] = df_pos["pos_pts"].astype("float")
-        df_mean_team = df_pos.groupby("clube_id").mean(numeric_only=True)
-        df_coaches = df_coaches.join(df_mean_team, lsuffix="_coach", rsuffix="_groupby")
-        print(df_coaches.sort_values("pos_pts_groupby", ascending=False).head(5))
+            else:
+                # special calculation for coaches, must be the last iteration on this loop. Need all other players agregated
+                df_pos = pd.concat(coach_team)
+                df_pos = df_pos.reset_index()
+                df_pos.columns.values[0] = "clube_id"
+                df_pos = df_pos[["clube_id", "media_num", "pos_pts"]].dropna()
+                df_pos["pos_pts"] = df_pos["pos_pts"].astype("float")
+                df_mean_team = df_pos.groupby("clube_id").mean(numeric_only=True)
+                rank_players = rank_players.join(df_mean_team, lsuffix="_coach", rsuffix="_groupby")
+                param["players"] = rank_players.sort_values("pos_pts_groupby", ascending=False).head(param["qty"])
+                print(param["players"][["abreviacao", "apelido",  "pos_pts_groupby", "preco_num", "media_num_groupby", "roi", "status_id"]])
+            print()
 
         print("CAPITÃES")
         df_selected = pd.concat(pre_team)
@@ -418,14 +410,14 @@ def main():
         print(df_captains.sort_values("pontos_num_median", ascending=False)[["team", "apelido",
                                                                                   "pontos_num_median"]].head(8))
 
-        print("RESERVAS")
-        df_substitutes = pd.concat(coach_team).set_index('atleta_id')
-        for pos, qtd in [(1, 3), (5, 7), (3, 5), (4, 7), (2, 5)]:
-            df2 = df_substitutes.drop(df_substitutes[df_substitutes.posicao_id != pos].index)
-            lowest_price = min(df2.head(qtd)["preco_num"])
-            df2 = df2.drop(df2.head(qtd).index)
-            df3 = df2.drop(df2[df2.preco_num > lowest_price].index)
-            print(df3.head(1)[["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi"]])
+        # print("RESERVAS")
+        # df_substitutes = pd.concat(coach_team).set_index('atleta_id')
+        # for pos, qtd in [(1, 3), (5, 7), (3, 5), (4, 7), (2, 5)]:
+        #     df2 = df_substitutes.drop(df_substitutes[df_substitutes.posicao_id != pos].index)
+        #     lowest_price = min(df2.head(qtd)["preco_num"])
+        #     df2 = df2.drop(df2.head(qtd).index)
+        #     df3 = df2.drop(df2[df2.preco_num > lowest_price].index)
+        #     print(df3.head(1)[columns_to_print])
 
     else: # select players using price difference between the last and actual seasons
         print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a temporada passada...')
