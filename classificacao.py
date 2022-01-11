@@ -356,10 +356,10 @@ def main():
         coach_team = []
 
         goalkeeper_param = {"label": "GOLEIROS", "code": 1, "idx": "idx_goalkeeper", "qty": 3, "qty_bk": 1}
-        attack_param = {"label": "ATACANTES", "code": 5, "idx": "idx_attack", "qty": 7, "qty_bk": 2}
-        defense_param = {"label": "ZAGUEIROS", "code": 3, "idx": "idx_defense", "qty": 5, "qty_bk": 1}
+        attack_param = {"label": "ATACANTES", "code": 5, "idx": "idx_attack", "qty": 10, "qty_bk": 2}
+        defense_param = {"label": "ZAGUEIROS", "code": 3, "idx": "idx_defense", "qty": 7, "qty_bk": 2}
         midfield_param = {"label": "MEIAS", "code": 4, "idx": "idx_attack", "qty": 7, "qty_bk": 2}
-        sidefield_param = {"label": "LATERAIS", "code": 2, "idx": "idx_coach", "qty": 5, "qty_bk": 2}
+        sidefield_param = {"label": "LATERAIS", "code": 2, "idx": "idx_coach", "qty": 7, "qty_bk": 2}
         coach_param = {"label": "TÉCNICOS", "code": 6, "idx": "idx_coach", "qty": 5, "qty_bk": 0}
         columns_to_print = ["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]
 
