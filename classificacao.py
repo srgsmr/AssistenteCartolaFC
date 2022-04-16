@@ -314,7 +314,7 @@ def main():
         print("Temporada aberta. Vamos jogar!")
         print("Dados salvos em: " + cartola_api.save_rawdata())
         df_atletas = pd.DataFrame(cartola_data["atletas"])
-        df_atletas.to_csv("data" + str(season) + "/atletas.csv", encoding="cp860")
+        df_atletas.to_csv("data" + str(season) + "/atletas.csv", encoding="cp860", errors="replace")
 
         df_status = pd.DataFrame(cartola_data["status"])
         df_posicoes = pd.DataFrame(cartola_data["posicoes"])
@@ -356,7 +356,7 @@ def main():
         coach_team = []
 
         goalkeeper_param = {"label": "GOLEIROS", "code": 1, "idx": "idx_goalkeeper", "qty": 3, "qty_bk": 1}
-        attack_param = {"label": "ATACANTES", "code": 5, "idx": "idx_attack", "qty": 10, "qty_bk": 2}
+        attack_param = {"label": "ATACANTES", "code": 5, "idx": "idx_attack", "qty": 7, "qty_bk": 2}
         defense_param = {"label": "ZAGUEIROS", "code": 3, "idx": "idx_defense", "qty": 7, "qty_bk": 2}
         midfield_param = {"label": "MEIAS", "code": 4, "idx": "idx_attack", "qty": 7, "qty_bk": 2}
         sidefield_param = {"label": "LATERAIS", "code": 2, "idx": "idx_coach", "qty": 7, "qty_bk": 2}
@@ -425,7 +425,7 @@ def main():
 
         # read data from last season to compare
         # df_players_last_season = pd.read_csv("data" + str(season - 1) + "/rodada_38.csv", encoding="cp860")
-        cartola_prev = cartola_api.load_rawdata("mercado_2019_38.txt", "data2019/")
+        cartola_prev = cartola_api.load_rawdata("mercado_2021_38.txt", "data2021/")
 
 
         df_players_last_season = pd.DataFrame(cartola_prev["atletas"])

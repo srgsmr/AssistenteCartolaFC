@@ -40,12 +40,12 @@ class Cartoleiro:
             self.df_teams = self.read_teams()
         # TODO remove path hardcode to read these files
         try:
-            self.scout_table = pd.read_csv("data2021/scout_table.csv", encoding='utf_16')
+            self.scout_table = pd.read_csv("data2022/scout_table.csv", encoding='utf_16')
         except:
             self.scout_table = pd.DataFrame()
 
         try:
-            self.rounds_table = pd.read_csv("data2021/rounds_table.csv", encoding='utf_16')
+            self.rounds_table = pd.read_csv("data2022/rounds_table.csv", encoding='utf_16')
             # self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]
         except:
             self.rounds_table = pd.DataFrame()
@@ -137,14 +137,14 @@ class Cartoleiro:
             # there are no scouts saved, lets restore all from round 1
             self.restore_past_scouts(1, round + 1)
             # TODO remove hardcoded path
-            self.scout_table.to_csv("data2021/scout_table.csv", encoding='utf_16')
+            self.scout_table.to_csv("data2022/scout_table.csv", encoding='utf_16')
         else:
             last_saved_round = self.scout_table["rodada_id"].max()
             if last_saved_round < round:
                 # there are some scouts missing, lets restore them
                 self.restore_past_scouts(last_saved_round + 1, round + 1)
                 # TODO remove hardcoded path
-                self.scout_table.to_csv("data2021/scout_table.csv", encoding='utf_16')
+                self.scout_table.to_csv("data2022/scout_table.csv", encoding='utf_16')
             elif last_saved_round > round:
                 # that's uncommon, maybe something wrong with data
                 print("WARNING - scouts_table.csv tem mais rodadas salvas do que a atual!")
@@ -163,14 +163,14 @@ class Cartoleiro:
             # there are no rounds saved, lets restore all from round 1
             self.restore_past_rounds(1, round + 1)
             # TODO remove hardcoded path
-            self.rounds_table.to_csv("data2021/rounds_table.csv", encoding='utf_16')
+            self.rounds_table.to_csv("data2022/rounds_table.csv", encoding='utf_16')
         else:
             last_saved_round = self.rounds_table["rodada_id"].max()
             if last_saved_round < round:
                 # there are some rounds missing, lets restore them
                 self.restore_past_rounds(last_saved_round + 1, round + 1)
                 # TODO remove hardcoded path
-                self.rounds_table.to_csv("data2021/rounds_table.csv", encoding='utf_16')
+                self.rounds_table.to_csv("data2022/rounds_table.csv", encoding='utf_16')
             elif last_saved_round > round:
                 # that's uncommon, maybe something wrong with data
                 print("WARNING - rounds_table.csv tem mais rodadas salvas do que a atual!")
