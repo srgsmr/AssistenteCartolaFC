@@ -1,4 +1,5 @@
 import pandas as pd
+from itertools import combinations
 
 from cartolafc_api import cartola_api
 
@@ -189,7 +190,7 @@ class Cartoleiro:
         self.ranking["host_nogoals_suf"] = 0.0
         self.ranking["guest_nogoals_suf"] = 0.0
 
-        for team_id in self.df_teams[["id"]].get_values():
+        for team_id in self.df_teams[["id"]].to_numpy():
             id = str(team_id[0])
             df_host = self.rounds_table.loc[self.rounds_table["clube_casa_id"] == team_id[0]].copy(deep=True)
             df_guest = self.rounds_table.loc[self.rounds_table["clube_visitante_id"] == team_id[0]].copy(deep=True)
@@ -235,7 +236,7 @@ class Cartoleiro:
         self.indexes["defense"] = 0.0
         self.indexes["goalkeeper"] = 0.0
 
-        for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
+        for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].to_numpy():
             host = str(host_id)
             guest = str(guest_id)
             if self.ranking.loc[host, "host_matches"] == 0 or self.ranking.loc[guest, "guest_matches"] == 0:
@@ -289,7 +290,7 @@ class Cartoleiro:
         self.indexes["idx_goalkeeper"] = self.indexes["goalkeeper"] / total
         self.indexes["idx_coach"] = (self.indexes["idx_attack"] + self.indexes["idx_defense"] * 2)/3
 
-        for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].get_values():
+        for (host_id, guest_id) in self.next_round[["clube_casa_id", "clube_visitante_id"]].to_numpy():
             host = str(host_id)
             guest = str(guest_id)
             print(self.indexes["abreviacao"][host] + " (" +
@@ -355,4 +356,84 @@ class Cartoleiro:
 
         return df_pos
 
+    def choose_top(self, qty, balance, players):
+
+        choosen = players.head(qty)
+        cost = choosen["preco_num"].sum()
+        actual_balance = balance - cost
+        for player in players:
+            id = "teste" #+ player["apelido"] #+ "-" + player["team"] #+ " {" + "{:d}".format(player["status_id"])
+        return choosen
+
+    def choose_cheapest(self, qty, balance, players):
+        cheapest = {}
+        cheapest["choosen"] = players.sort_values("preco_num", ascending=True).head(qty)
+        cheapest["cost"] = cheapest["choosen"]["preco_num"].sum()
+        cheapest["previous_balance"] = balance
+        cheapest["actual_balance"] = balance - cheapest["cost"]
+        # print(cheapest)
+        return cheapest
+
+    def choose_bestcombination(self, qty, balance, players, criteria):
+
+        comb_players = players.set_index("atleta_id")
+        my_players = list(combinations(comb_players.index, qty))
+
+        best_points = 0
+        best_points_cost = 0
+        bestcombination = {}
+        for comb in my_players:
+            cost = comb_players.loc[comb,:]["preco_num"].sum()
+            points = comb_players.loc[comb,:][criteria].sum()
+            if (cost <= balance and points > best_points):
+                bestcombination["choosen"] = comb_players.loc[comb,:]
+                best_points = points
+                best_points_cost = cost
+
+        bestcombination["cost"] = best_points_cost
+        bestcombination["previous_balance"] = balance
+        bestcombination["actual_balance"] = balance - bestcombination["cost"]
+        # print(bestcombination)
+        return bestcombination
+
+
+    def assemble_team(self, budget, players_list):
+
+        #loop positions from most relevant to minor relevants
+        #until team is complete and on budget
+
+            # choose best pos_pts from each position discount cost from budget if on budget move on
+            # if over budget then choose best combination on budget and move on to next position
+            # if no combination is on budget choose the cheapeast combination and go back to previous position
+
+        pos = {5: 3, 1: 1, 2: 2, 4: 3, 6: 1, 3: 2}
+
+        balance = budget
+        my_players = {}
+
+        # first we complete whole team with the cheapest combination for each position
+        # we loop all positions, select the players and subtract from remaining budget
+        for rank, param in players_list:
+            my_players[param["code"]] = self.choose_cheapest(pos[param["code"]], balance, param["players"])
+            balance = my_players[param["code"]]["actual_balance"]
+        # if the remaining balance after choosing the cheapest payers is not enough
+        # then we cannot resolve this team with these players
+        if balance < 0:
+            print("Impossível montar o time. Faltam cartoletas!")
+        else:
+            # now with the remaining balance we need to loop again for each position
+            # and choose the best combination for the budget we actually have
+            for rank, param in players_list:
+                balance = balance + my_players[param["code"]]["cost"]
+                if param["code"] == 6:
+                    temp_players = self.choose_bestcombination(pos[param["code"]], balance, param["players"], "pos_pts_groupby")
+                else:
+                    temp_players = self.choose_bestcombination(pos[param["code"]], balance, param["players"], "pos_pts")
+                if (temp_players["actual_balance"] > 0):
+                    my_players[param["code"]] = temp_players
+                    balance = temp_players["actual_balance"]
+                else:
+                    balance = balance - my_players[param["code"]]["cost"]
+        print(my_players)
+        return
 

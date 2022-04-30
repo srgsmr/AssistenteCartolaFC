@@ -330,7 +330,7 @@ def main():
         cart.update_rounds(round-1)
 
     # test to identify season first rounds
-    if round <= 3:
+    if round <= 2:
         first_rounds = True
     else:
         first_rounds = False
@@ -398,6 +398,9 @@ def main():
         print(coach_param["players"][
                   ["abreviacao", "apelido", "pos_pts_groupby", "preco_num", "media_num_groupby", "roi", "status_id"]])
         print()
+        team_list.append((0, coach_param))
+
+        cart.assemble_team(112.22, team_list)
 
         print("CAPITÃES")
         df_selected = pd.concat(pre_team)
