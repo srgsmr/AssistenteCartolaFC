@@ -400,9 +400,10 @@ def main():
         print()
         team_list.append((0, coach_param))
 
-        cart.assemble_team(112.22, team_list)
+        my_team = cart.assemble_team(112.61, team_list)
 
         print("CAPITÃES")
+        # TODO improve captain calculation to speed
         df_selected = pd.concat(pre_team)
         df_selected = df_selected.set_index("atleta_id")
         df_players_temp = cart.scout_table
@@ -422,6 +423,13 @@ def main():
         print(df_captains.sort_values("pontos_num_median", ascending=False)[["team", "apelido",
                                                                                   "pontos_num_median"]].head(8))
 
+
+        print()
+        print("MEU TIME DA RODADA")
+        for value in my_team.values():
+            for player in value["choosen"].iterrows():
+                print(player[1]["pos"] + "    " + player[1]["abreviacao"] + " : " + player[1]["apelido"] +
+                      (" (?)" if player[1]["status_id"] == 2 else ""))
 
     else: # select players using price difference between the last and actual seasons
         print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a temporada passada...')

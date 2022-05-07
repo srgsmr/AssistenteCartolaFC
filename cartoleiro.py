@@ -356,14 +356,6 @@ class Cartoleiro:
 
         return df_pos
 
-    def choose_top(self, qty, balance, players):
-
-        choosen = players.head(qty)
-        cost = choosen["preco_num"].sum()
-        actual_balance = balance - cost
-        for player in players:
-            id = "teste" #+ player["apelido"] #+ "-" + player["team"] #+ " {" + "{:d}".format(player["status_id"])
-        return choosen
 
     def choose_cheapest(self, qty, balance, players):
         cheapest = {}
@@ -389,22 +381,28 @@ class Cartoleiro:
                 bestcombination["choosen"] = comb_players.loc[comb,:]
                 best_points = points
                 best_points_cost = cost
+                best_comb = comb
 
         bestcombination["cost"] = best_points_cost
         bestcombination["previous_balance"] = balance
         bestcombination["actual_balance"] = balance - bestcombination["cost"]
+
+        # backup players for bench
+        #comb_players = players.set_index("atleta_id").drop(list(best_comb))
+        #comb_players.sort_values(criteria, ascending=False)
+        #cost = bestcombination["choosen"]["preco_num"].min()
+        #bestcombination["bench"] = None
+        #for player in comb_players.iterrows():
+        #    if player["preco_num"] < cost:
+        #        bestcombination["bench"] = player
+        #        break
         # print(bestcombination)
         return bestcombination
 
-
+    # TODO choose the bench for team
+    # TODO choose the captain
+    # TODO expand the search if budget is not enough (other formations or more players to select)
     def assemble_team(self, budget, players_list):
-
-        #loop positions from most relevant to minor relevants
-        #until team is complete and on budget
-
-            # choose best pos_pts from each position discount cost from budget if on budget move on
-            # if over budget then choose best combination on budget and move on to next position
-            # if no combination is on budget choose the cheapeast combination and go back to previous position
 
         pos = {5: 3, 1: 1, 2: 2, 4: 3, 6: 1, 3: 2}
 
@@ -434,6 +432,6 @@ class Cartoleiro:
                     balance = temp_players["actual_balance"]
                 else:
                     balance = balance - my_players[param["code"]]["cost"]
-        print(my_players)
-        return
+        #print(my_players)
+        return my_players
 
