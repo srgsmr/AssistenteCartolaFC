@@ -361,6 +361,7 @@ class Cartoleiro:
         cheapest = {}
         cheapest["choosen"] = players.sort_values("preco_num", ascending=True).head(qty)
         cheapest["cost"] = cheapest["choosen"]["preco_num"].sum()
+        cheapest["cheapest"] = cheapest["choosen"]["preco_num"].min()
         cheapest["previous_balance"] = balance
         cheapest["actual_balance"] = balance - cheapest["cost"]
         # print(cheapest)
@@ -384,6 +385,7 @@ class Cartoleiro:
                 best_comb = comb
 
         bestcombination["cost"] = best_points_cost
+        bestcombination["cheapest"] = bestcombination["choosen"]["preco_num"].min()
         bestcombination["previous_balance"] = balance
         bestcombination["actual_balance"] = balance - bestcombination["cost"]
 

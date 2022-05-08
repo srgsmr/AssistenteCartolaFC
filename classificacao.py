@@ -293,6 +293,11 @@ def formation_analysis(defense, attack):
     return points
 
 
+def print_player(fix_text, player):
+    print(fix_text + player["pos"] + "    " + player["abreviacao"] + " : " + player["apelido"] +
+          (" (?)" if player["status_id"] == 2 else ""))
+
+
 def main():
     # console setup
     pd.set_option("display.width", None)
@@ -371,6 +376,7 @@ def main():
                 param["players"] = coach_team[-1].head(param["qty"])
                 team_list.append((param["players"]["media_num"].mean(), param))
                 pre_team.append(param["players"])
+                param["ranked"] = rank_players
                 lowest_price = min(param["players"]["preco_num"])
                 df2 = rank_players.drop(param["players"].index)
                 df3 = df2.drop(df2[df2.preco_num > lowest_price].index)
@@ -401,6 +407,10 @@ def main():
         team_list.append((0, coach_param))
 
         my_team = cart.assemble_team(112.61, team_list)
+        # now we select the best option for bench
+        for param in [goalkeeper_param, attack_param, defense_param, midfield_param, sidefield_param]:
+            max_price = my_team[param["code"]]["cheapest"]
+            my_team[param["code"]]["bench"] = param["ranked"].loc[param["ranked"]["preco_num"] < max_price].head(1)
 
         print("CAPITÃES")
         # TODO improve captain calculation to speed
@@ -427,9 +437,13 @@ def main():
         print()
         print("MEU TIME DA RODADA")
         for value in my_team.values():
+            posicao_id = value["choosen"].iloc[0]["posicao_id"]
             for player in value["choosen"].iterrows():
-                print(player[1]["pos"] + "    " + player[1]["abreviacao"] + " : " + player[1]["apelido"] +
-                      (" (?)" if player[1]["status_id"] == 2 else ""))
+                print_player("--->| ", player[1])
+
+            if posicao_id != 6:
+                for player in value["bench"].iterrows():
+                    print_player("    | ", player[1])
 
     else: # select players using price difference between the last and actual seasons
         print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a temporada passada...')
