@@ -243,32 +243,36 @@ class Cartoleiro:
                 self.indexes.loc[host, "attack"] = 0
             else:
                 self.indexes.loc[host, "attack"] = (max(0.5, self.ranking.loc[host, "host_scored"]) / \
-                                               self.ranking.loc[host, "host_matches"]) * \
-                                               (max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
-                                               self.ranking.loc[guest, "guest_matches"])
+                                               self.ranking.loc[host, "host_matches"]) #* \
+                                               #(max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
+                                               #self.ranking.loc[guest, "guest_matches"])
 
             if self.ranking.loc[guest, "guest_matches"] == 0 or self.ranking.loc[host, "host_matches"] == 0:
                 self.indexes.loc[guest, "attack"] = 0
             else:
 
                 self.indexes.loc[guest, "attack"] = (max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
-                                               self.ranking.loc[guest, "guest_matches"]) * \
-                                                (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
-                                               self.ranking.loc[host, "host_matches"])
+                                               self.ranking.loc[guest, "guest_matches"]) #* \
+                                               # (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
+                                               #self.ranking.loc[host, "host_matches"])
             if self.ranking.loc[host, "host_matches"] == 0 or self.ranking.loc[guest, "guest_matches"] == 0:
                 self.indexes.loc[host, "defense"] = 0
             else:
-                self.indexes.loc[host, "defense"] = max(0.1, self.ranking.loc[host, "host_nogoals_suf"]) / (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
-                                           self.ranking.loc[host, "host_matches"] * \
-                                           max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
-                                           self.ranking.loc[guest, "guest_matches"])
+                # self.indexes.loc[host, "defense"] = max(0.1, self.ranking.loc[host, "host_nogoals_suf"]) / (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
+                #                            self.ranking.loc[host, "host_matches"] * \
+                #                            max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
+                #                            self.ranking.loc[guest, "guest_matches"])
+                self.indexes.loc[host, "defense"] = max(0.1, self.ranking.loc[host, "host_nogoals_suf"]) / max(0.5, self.ranking.loc[host, "host_suffered"])
+
             if self.ranking.loc[guest, "guest_matches"] == 0 or self.ranking.loc[host, "host_matches"] == 0:
                 self.indexes.loc[guest, "defense"] = 0
             else:
-                self.indexes.loc[guest, "defense"] = max(0.1, self.ranking.loc[guest, "guest_nogoals_suf"]) / (max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
-                                            self.ranking.loc[guest, "guest_matches"] * \
-                                            max(0.5, self.ranking.loc[host, "host_scored"]) / \
-                                            self.ranking.loc[host, "host_matches"])
+                # self.indexes.loc[guest, "defense"] = max(0.1, self.ranking.loc[guest, "guest_nogoals_suf"]) / (max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
+                #                             self.ranking.loc[guest, "guest_matches"] * \
+                #                             max(0.5, self.ranking.loc[host, "host_scored"]) / \
+                #                             self.ranking.loc[host, "host_matches"])
+                self.indexes.loc[guest, "defense"] = max(0.1, self.ranking.loc[guest, "guest_nogoals_suf"]) / max(0.5, self.ranking.loc[guest, "guest_suffered"])
+
             self.indexes.loc[host, "goalkeeper"] = (self.indexes.loc[host, "defense"] * 3 + \
                                                    self.indexes.loc[guest, "attack"]) / 4 * \
                                                    max(0.1, self.ranking.loc[host, "total_nogoals_suf"])
@@ -364,6 +368,7 @@ class Cartoleiro:
         cheapest["cheapest"] = cheapest["choosen"]["preco_num"].min()
         cheapest["previous_balance"] = balance
         cheapest["actual_balance"] = balance - cheapest["cost"]
+        cheapest["all_confirmed"] = (cheapest["choosen"]["status_id"] != 2).sum() == 0
         # print(cheapest)
         return cheapest
 
@@ -388,6 +393,7 @@ class Cartoleiro:
         bestcombination["cheapest"] = bestcombination["choosen"]["preco_num"].min()
         bestcombination["previous_balance"] = balance
         bestcombination["actual_balance"] = balance - bestcombination["cost"]
+        bestcombination["all_confirmed"] = (bestcombination["choosen"]["status_id"] != 2).sum() == 0
 
         # backup players for bench
         #comb_players = players.set_index("atleta_id").drop(list(best_comb))
@@ -401,8 +407,6 @@ class Cartoleiro:
         # print(bestcombination)
         return bestcombination
 
-    # TODO choose the bench for team
-    # TODO choose the captain
     # TODO expand the search if budget is not enough (other formations or more players to select)
     def assemble_team(self, budget, players_list):
 

@@ -293,10 +293,14 @@ def formation_analysis(defense, attack):
     return points
 
 
-def print_player(fix_text, player):
-    print(fix_text + player["pos"] + "    " + player["abreviacao"] + " : " + player["apelido"] +
-          (" (?)" if player["status_id"] == 2 else ""))
+def print_player(fix_text, player, captain_id, captain_median):
+    print(fix_text + player["pos"] + "   " + player["abreviacao"] + (" ? " if player["status_id"] == 2 else "   ") +
+          player["apelido"] + ("  [=C=]" if player["apelido"] == captain_id else ""))
 
+
+def print_players(fix_text, players, captain_id, captain_median):
+    for player in players.iterrows():
+        print_player(fix_text, player[1], captain_id, captain_median)
 
 def main():
     # console setup
@@ -360,11 +364,11 @@ def main():
         pre_team = []
         coach_team = []
 
-        goalkeeper_param = {"label": "GOLEIROS", "code": 1, "idx": "idx_goalkeeper", "qty": 3, "qty_bk": 1}
+        goalkeeper_param = {"label": "GOLEIROS", "code": 1, "idx": "idx_defense", "qty": 3, "qty_bk": 1} # "idx_goalkeeper"
         attack_param = {"label": "ATACANTES", "code": 5, "idx": "idx_attack", "qty": 7, "qty_bk": 2}
-        defense_param = {"label": "ZAGUEIROS", "code": 3, "idx": "idx_defense", "qty": 7, "qty_bk": 2}
+        defense_param = {"label": "ZAGUEIROS", "code": 3, "idx": "idx_defense", "qty": 5, "qty_bk": 2}
         midfield_param = {"label": "MEIAS", "code": 4, "idx": "idx_attack", "qty": 7, "qty_bk": 2}
-        sidefield_param = {"label": "LATERAIS", "code": 2, "idx": "idx_coach", "qty": 7, "qty_bk": 2}
+        sidefield_param = {"label": "LATERAIS", "code": 2, "idx": "idx_coach", "qty": 5, "qty_bk": 2}
         coach_param = {"label": "TÉCNICOS", "code": 6, "idx": "idx_coach", "qty": 5, "qty_bk": 0}
         columns_to_print = ["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]
 
@@ -377,10 +381,10 @@ def main():
                 team_list.append((param["players"]["media_num"].mean(), param))
                 pre_team.append(param["players"])
                 param["ranked"] = rank_players
-                lowest_price = min(param["players"]["preco_num"])
-                df2 = rank_players.drop(param["players"].index)
-                df3 = df2.drop(df2[df2.preco_num > lowest_price].index)
-                param["subst"] = df3.head(param["qty_bk"])
+                #lowest_price = min(param["players"]["preco_num"])
+                #df2 = rank_players.drop(param["players"].index)
+                #df3 = df2.drop(df2[df2.preco_num > lowest_price].index)
+                #param["subst"] = df3.head(param["qty_bk"])
 
             else:
                 # special calculation for coaches, must be the last iteration on this loop. Need all other players agregated
@@ -397,27 +401,33 @@ def main():
         for rank, param in team_list:
             print("* " + param["label"] + " ****************************************************************** média = " + "{:.2f}".format(rank))
             print(param["players"][columns_to_print])
-            print("- banco --------------------------------------------------------------------")
-            print(param["subst"][columns_to_print])
-            print()
+            #print("- banco --------------------------------------------------------------------")
+            #print(param["subst"][columns_to_print])
+            #print()
         print("* " + coach_param["label"] + " **************************************************************************")
         print(coach_param["players"][
                   ["abreviacao", "apelido", "pos_pts_groupby", "preco_num", "media_num_groupby", "roi", "status_id"]])
         print()
         team_list.append((0, coach_param))
 
-        my_team = cart.assemble_team(112.61, team_list)
+        budget = 115.65
+        my_team = cart.assemble_team(budget, team_list)
         # now we select the best option for bench
         for param in [goalkeeper_param, attack_param, defense_param, midfield_param, sidefield_param]:
             max_price = my_team[param["code"]]["cheapest"]
-            my_team[param["code"]]["bench"] = param["ranked"].loc[param["ranked"]["preco_num"] < max_price].head(1)
+            if my_team[param["code"]]["all_confirmed"]:
+                my_team[param["code"]]["bench"] = param["ranked"].loc[param["ranked"]["preco_num"] < max_price].head(1)
+            else:
+                my_team[param["code"]]["bench"] = param["ranked"].loc[(param["ranked"]["preco_num"] < max_price) &
+                                                                      (param["ranked"]["status_id"] != 2)].head(1)
 
         print("CAPITÃES")
-        # TODO improve captain calculation to speed
         df_selected = pd.concat(pre_team)
         df_selected = df_selected.set_index("atleta_id")
+        selected_list = df_selected.index
         df_players_temp = cart.scout_table
         df_players_list = df_players_temp.set_index(["atleta_id", "rodada_id"])
+        df_players_list = df_players_list.loc[selected_list, :]
         df_captains = pd.DataFrame()
         for player in df_players_list.index.get_level_values(0).unique():
             # .copy(deep=True) to supress SettingWithCopyWarning
@@ -430,20 +440,22 @@ def main():
 
         df_captains = df_captains.groupby("atleta_id").median()
         df_captains = df_selected.join(df_captains, lsuffix="_player", rsuffix="_median")
-        print(df_captains.sort_values("pontos_num_median", ascending=False)[["team", "apelido",
-                                                                                  "pontos_num_median"]].head(8))
+        df_captains = df_captains.sort_values("pontos_num_median", ascending=False)
+        print(df_captains[["team", "apelido", "pontos_num_median"]].head(8))
 
+        captain = df_captains.loc[(my_team[list(my_team.keys())[0]]["choosen"].
+                                   append(my_team[list(my_team.keys())[1]]["choosen"])).index, :].sort_values("pontos_num_median", ascending=False).head(1)
+        captain_id = captain["apelido"].values[0]
+        captain_median = float(captain["pontos_num_median"].values)
 
         print()
-        print("MEU TIME DA RODADA")
+        print("MEU TIME DA RODADA com " + "{:.2f}".format(budget) + " cartoletas")
         for value in my_team.values():
             posicao_id = value["choosen"].iloc[0]["posicao_id"]
-            for player in value["choosen"].iterrows():
-                print_player("--->| ", player[1])
+            print_players("--->| ", value["choosen"], captain_id, captain_median)
 
             if posicao_id != 6:
-                for player in value["bench"].iterrows():
-                    print_player("    | ", player[1])
+                print_players("    | ", value["bench"], captain_id, captain_median)
 
     else: # select players using price difference between the last and actual seasons
         print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a temporada passada...')
