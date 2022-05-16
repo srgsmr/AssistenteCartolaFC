@@ -2,27 +2,44 @@ import pandas as pd
 from itertools import combinations
 
 from cartolafc_api import cartola_api
+import cartolafc_api as api
 
-# Scouts and points
-#
-#   A   5.0     Assitencia
-#   CA  -2.0    Cartao amarelo
-#   CV  -5.0    Cartao vermelho
-#   DD  3.0     Defesa dificil (somente goleiro)
-#   FC  -0.5    Falta cometida
-#   FD  1.2     Finalizacao Defendida
-#   FF  0.8     Finalizacao para Fora
-#   FS  0.5     Falta sofrida
-#   FT  3.0     Finalizacao na Trave
-#   G   8.0     Gol
-#   GC  -5.0    Gol Contra
-#   GS  -2.0    Gol Sofrido (somente goleiro)
-#   I   -0.5    Impedimento
-#   PE  -0.3    Passe errado
-#   RB  1.5     Roubada de Bola
-#   SG  5.0     Jogo Sem sofrer Gol
-#   ??  -4.0    Penalti perdido
-#   ??  7.0     Defesa de penalti
+
+class Cartoleiro_Executor:
+
+    def get_captain(self, captains, my_team):
+        captain = captains.loc[(my_team[list(my_team.keys())[0]]["choosen"].
+                                   append(my_team[list(my_team.keys())[1]]["choosen"])).index, :].sort_values("pontos_num_median", ascending=False).head(1)
+        captain_id = captain["apelido"].values[0]
+        captain_median = float(captain["pontos_num_median"].values)
+
+        return captain_id, captain_median
+
+
+
+
+
+class Cartoleiro_Viewer:
+
+    def print_player(self, fix_text, player, captain_id, captain_median):
+        print(fix_text + player["pos"] + "   " + player["abreviacao"] + (" ? " if player["status_id"] == 2 else "   ") +
+              player["apelido"] + ("  [=C=]" if player["apelido"] == captain_id else ""))
+
+    def print_players(self, fix_text, players, captain_id, captain_median):
+        for player in players.iterrows():
+            self.print_player(fix_text, player[1], captain_id, captain_median)
+
+
+    def print_my_team(self, my_team, budget, captain_id, captain_median):
+        print()
+        print("MEU TIME DA RODADA com " + "{:.2f}".format(budget) + " cartoletas")
+        for value in my_team.values():
+            posicao_id = value["choosen"].iloc[0]["posicao_id"]
+            self.print_players("--->| ", value["choosen"], captain_id, captain_median)
+
+            if posicao_id != api.COD_TECNICO:
+                self.print_players("    | ", value["bench"], captain_id, captain_median)
+
 
 class Cartoleiro:
     """ Cartoleiro - encapsulate teams and players stats for team building """
@@ -32,7 +49,10 @@ class Cartoleiro:
     scout_table = pd.DataFrame()
     rounds_table = pd.DataFrame()
     ranking = pd.DataFrame()
-
+    cart_viewer = Cartoleiro_Viewer()
+    cart_executor = Cartoleiro_Executor()
+    captain_id = None
+    captain_median = None
 
     def __init__(self, season_on=True):
         """ init teams data reading teams data from CartolaAPI """
@@ -242,7 +262,7 @@ class Cartoleiro:
             if self.ranking.loc[host, "host_matches"] == 0 or self.ranking.loc[guest, "guest_matches"] == 0:
                 self.indexes.loc[host, "attack"] = 0
             else:
-                self.indexes.loc[host, "attack"] = (max(0.5, self.ranking.loc[host, "host_scored"]) / \
+                self.indexes.loc[host, "attack"] = (max(0.5, self.ranking.loc[host, "host_scored"]) ** 2/ \
                                                self.ranking.loc[host, "host_matches"]) #* \
                                                #(max(0.5, self.ranking.loc[guest, "guest_suffered"]) / \
                                                #self.ranking.loc[guest, "guest_matches"])
@@ -251,7 +271,7 @@ class Cartoleiro:
                 self.indexes.loc[guest, "attack"] = 0
             else:
 
-                self.indexes.loc[guest, "attack"] = (max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
+                self.indexes.loc[guest, "attack"] = (max(0.5, self.ranking.loc[guest, "guest_scored"]) ** 2/ \
                                                self.ranking.loc[guest, "guest_matches"]) #* \
                                                # (max(0.5, self.ranking.loc[host, "host_suffered"]) / \
                                                #self.ranking.loc[host, "host_matches"])
@@ -262,7 +282,7 @@ class Cartoleiro:
                 #                            self.ranking.loc[host, "host_matches"] * \
                 #                            max(0.5, self.ranking.loc[guest, "guest_scored"]) / \
                 #                            self.ranking.loc[guest, "guest_matches"])
-                self.indexes.loc[host, "defense"] = max(0.1, self.ranking.loc[host, "host_nogoals_suf"]) / max(0.5, self.ranking.loc[host, "host_suffered"])
+                self.indexes.loc[host, "defense"] = max(0.1, self.ranking.loc[host, "host_nogoals_suf"]) ** 2 / max(0.5, self.ranking.loc[host, "host_suffered"]) ** 2
 
             if self.ranking.loc[guest, "guest_matches"] == 0 or self.ranking.loc[host, "host_matches"] == 0:
                 self.indexes.loc[guest, "defense"] = 0
@@ -271,7 +291,7 @@ class Cartoleiro:
                 #                             self.ranking.loc[guest, "guest_matches"] * \
                 #                             max(0.5, self.ranking.loc[host, "host_scored"]) / \
                 #                             self.ranking.loc[host, "host_matches"])
-                self.indexes.loc[guest, "defense"] = max(0.1, self.ranking.loc[guest, "guest_nogoals_suf"]) / max(0.5, self.ranking.loc[guest, "guest_suffered"])
+                self.indexes.loc[guest, "defense"] = max(0.1, self.ranking.loc[guest, "guest_nogoals_suf"]) ** 2/ max(0.5, self.ranking.loc[guest, "guest_suffered"]) ** 2
 
             self.indexes.loc[host, "goalkeeper"] = (self.indexes.loc[host, "defense"] * 3 + \
                                                    self.indexes.loc[guest, "attack"]) / 4 * \
@@ -441,3 +461,10 @@ class Cartoleiro:
         #print(my_players)
         return my_players
 
+
+    def get_captain(self, captains, my_team):
+        self.captain_id, self.captain_median = self.cart_executor.get_captain(captains, my_team)
+
+
+    def print_my_team(self, my_team, budget):
+        self.cart_viewer.print_my_team(my_team, budget, self.captain_id, self.captain_median)

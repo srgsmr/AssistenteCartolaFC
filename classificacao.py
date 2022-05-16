@@ -293,14 +293,6 @@ def formation_analysis(defense, attack):
     return points
 
 
-def print_player(fix_text, player, captain_id, captain_median):
-    print(fix_text + player["pos"] + "   " + player["abreviacao"] + (" ? " if player["status_id"] == 2 else "   ") +
-          player["apelido"] + ("  [=C=]" if player["apelido"] == captain_id else ""))
-
-
-def print_players(fix_text, players, captain_id, captain_median):
-    for player in players.iterrows():
-        print_player(fix_text, player[1], captain_id, captain_median)
 
 def main():
     # console setup
@@ -443,19 +435,9 @@ def main():
         df_captains = df_captains.sort_values("pontos_num_median", ascending=False)
         print(df_captains[["team", "apelido", "pontos_num_median"]].head(8))
 
-        captain = df_captains.loc[(my_team[list(my_team.keys())[0]]["choosen"].
-                                   append(my_team[list(my_team.keys())[1]]["choosen"])).index, :].sort_values("pontos_num_median", ascending=False).head(1)
-        captain_id = captain["apelido"].values[0]
-        captain_median = float(captain["pontos_num_median"].values)
+        cart.get_captain(df_captains, my_team) # select the best median player in my team as a captain
 
-        print()
-        print("MEU TIME DA RODADA com " + "{:.2f}".format(budget) + " cartoletas")
-        for value in my_team.values():
-            posicao_id = value["choosen"].iloc[0]["posicao_id"]
-            print_players("--->| ", value["choosen"], captain_id, captain_median)
-
-            if posicao_id != 6:
-                print_players("    | ", value["bench"], captain_id, captain_median)
+        cart.print_my_team(my_team, budget) # print my full team selected for the round
 
     else: # select players using price difference between the last and actual seasons
         print('Primeiras rodadas, vamos escolher os jogadores em relação ao preço que terminaram a temporada passada...')

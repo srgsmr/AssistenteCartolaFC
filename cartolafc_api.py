@@ -2,6 +2,10 @@ import requests
 import json
 from datetime import date
 
+
+COD_TECNICO = 6
+
+
 class CartolaAPI:
 
     """ CartolaAPI - class to extract and handle data from the CartolaFC site """
