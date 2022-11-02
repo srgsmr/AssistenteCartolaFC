@@ -8,8 +8,12 @@ import cartolafc_api as api
 class Cartoleiro_Executor:
 
     def get_captain(self, captains, my_team):
-        captain = captains.loc[(my_team[list(my_team.keys())[0]]["choosen"].
-                                   append(my_team[list(my_team.keys())[1]]["choosen"])).index, :].sort_values("pontos_num_median", ascending=False).head(1)
+        # select the captain from the most valuable two positions in my_team using the median form the player
+        dfa = my_team[list(my_team.keys())[0]]["choosen"]
+        dfb = my_team[list(my_team.keys())[1]]["choosen"]
+        captain = captains.loc[(dfa[dfa.status_id != 2]
+                                .append(dfb[dfb.status_id != 2]))
+                                   .index, :].sort_values("pontos_num_median", ascending=False).head(1)
         captain_id = captain["apelido"].values[0]
         captain_median = float(captain["pontos_num_median"].values)
 
@@ -400,7 +404,10 @@ class Cartoleiro:
         best_points = 0
         best_points_cost = 0
         bestcombination = {}
+        bestcombination["choosen"] = None
         for comb in my_players:
+            if (comb_players.loc[comb,:]["status_id"]==2).sum() > 1:
+                continue
             cost = comb_players.loc[comb,:]["preco_num"].sum()
             points = comb_players.loc[comb,:][criteria].sum()
             if (cost <= balance and points > best_points):
@@ -409,11 +416,14 @@ class Cartoleiro:
                 best_points_cost = cost
                 best_comb = comb
 
-        bestcombination["cost"] = best_points_cost
-        bestcombination["cheapest"] = bestcombination["choosen"]["preco_num"].min()
-        bestcombination["previous_balance"] = balance
-        bestcombination["actual_balance"] = balance - bestcombination["cost"]
-        bestcombination["all_confirmed"] = (bestcombination["choosen"]["status_id"] != 2).sum() == 0
+        if bestcombination["choosen"] is not None:
+            bestcombination["cost"] = best_points_cost
+            bestcombination["cheapest"] = bestcombination["choosen"]["preco_num"].min()
+            bestcombination["previous_balance"] = balance
+            bestcombination["actual_balance"] = balance - bestcombination["cost"]
+            bestcombination["all_confirmed"] = (bestcombination["choosen"]["status_id"] != 2).sum() == 0
+        else:
+            return None
 
         # backup players for bench
         #comb_players = players.set_index("atleta_id").drop(list(best_comb))
@@ -453,11 +463,15 @@ class Cartoleiro:
                     temp_players = self.choose_bestcombination(pos[param["code"]], balance, param["players"], "pos_pts_groupby")
                 else:
                     temp_players = self.choose_bestcombination(pos[param["code"]], balance, param["players"], "pos_pts")
-                if (temp_players["actual_balance"] > 0):
-                    my_players[param["code"]] = temp_players
-                    balance = temp_players["actual_balance"]
+                if temp_players is not None:
+                    if (temp_players["actual_balance"] > 0):
+                        my_players[param["code"]] = temp_players
+                        balance = temp_players["actual_balance"]
+                    else:
+                        balance = balance - my_players[param["code"]]["cost"]
                 else:
                     balance = balance - my_players[param["code"]]["cost"]
+
         #print(my_players)
         return my_players
 
