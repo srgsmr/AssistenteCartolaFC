@@ -12,7 +12,7 @@ class Cartoleiro_Executor:
         dfa = my_team[list(my_team.keys())[0]]["choosen"]
         dfb = my_team[list(my_team.keys())[1]]["choosen"]
         captain = captains.loc[(dfa[dfa.status_id != 2]
-                                .append(dfb[dfb.status_id != 2]))
+                                ._append(dfb[dfb.status_id != 2]))
                                    .index, :].sort_values("pontos_num_median", ascending=False).head(1)
         captain_id = captain["apelido"].values[0]
         captain_median = float(captain["pontos_num_median"].values)
@@ -65,12 +65,12 @@ class Cartoleiro:
             self.df_teams = self.read_teams()
         # TODO remove path hardcode to read these files
         try:
-            self.scout_table = pd.read_csv("data2022/scout_table.csv", encoding='utf_16')
+            self.scout_table = pd.read_csv("data2023/scout_table.csv", encoding='utf_16')
         except:
             self.scout_table = pd.DataFrame()
 
         try:
-            self.rounds_table = pd.read_csv("data2022/rounds_table.csv", encoding='utf_16')
+            self.rounds_table = pd.read_csv("data2023/rounds_table.csv", encoding='utf_16')
             # self.rounds_table = self.rounds_table[self.rounds_table['valida']==True]
         except:
             self.rounds_table = pd.DataFrame()
@@ -126,7 +126,7 @@ class Cartoleiro:
                 d['status_id'] = atleta['status_id']
                 d['variacao_num'] = atleta['variacao_num']
                 l.append(d)
-            self.scout_table = self.scout_table.append(l)
+            self.scout_table = self.scout_table._append(l)
         return
 
 
@@ -162,14 +162,14 @@ class Cartoleiro:
             # there are no scouts saved, lets restore all from round 1
             self.restore_past_scouts(1, round + 1)
             # TODO remove hardcoded path
-            self.scout_table.to_csv("data2022/scout_table.csv", encoding='utf_16')
+            self.scout_table.to_csv("data2023/scout_table.csv", encoding='utf_16')
         else:
             last_saved_round = self.scout_table["rodada_id"].max()
             if last_saved_round < round:
                 # there are some scouts missing, lets restore them
                 self.restore_past_scouts(last_saved_round + 1, round + 1)
                 # TODO remove hardcoded path
-                self.scout_table.to_csv("data2022/scout_table.csv", encoding='utf_16')
+                self.scout_table.to_csv("data2023/scout_table.csv", encoding='utf_16')
             elif last_saved_round > round:
                 # that's uncommon, maybe something wrong with data
                 print("WARNING - scouts_table.csv tem mais rodadas salvas do que a atual!")
@@ -180,7 +180,7 @@ class Cartoleiro:
         for i in range(start, end):
             df = pd.DataFrame(cartola_api.read_rounddata(i)['partidas'])
             df['rodada_id'] = i
-            self.rounds_table = self.rounds_table.append(df)
+            self.rounds_table = self.rounds_table._append(df)
         return
 
     def update_rounds(self, round):
@@ -188,14 +188,14 @@ class Cartoleiro:
             # there are no rounds saved, lets restore all from round 1
             self.restore_past_rounds(1, round + 1)
             # TODO remove hardcoded path
-            self.rounds_table.to_csv("data2022/rounds_table.csv", encoding='utf_16')
+            self.rounds_table.to_csv("data2023/rounds_table.csv", encoding='utf_16')
         else:
             last_saved_round = self.rounds_table["rodada_id"].max()
             if last_saved_round < round:
                 # there are some rounds missing, lets restore them
                 self.restore_past_rounds(last_saved_round + 1, round + 1)
                 # TODO remove hardcoded path
-                self.rounds_table.to_csv("data2022/rounds_table.csv", encoding='utf_16')
+                self.rounds_table.to_csv("data2023/rounds_table.csv", encoding='utf_16')
             elif last_saved_round > round:
                 # that's uncommon, maybe something wrong with data
                 print("WARNING - rounds_table.csv tem mais rodadas salvas do que a atual!")

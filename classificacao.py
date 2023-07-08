@@ -346,7 +346,7 @@ def main():
         df_comp["status"] = df_comp["status_id"].apply(lambda x: df_status[str(x)]["nome"])
 
     # keep only players confirmed for the round (status_id == 7) and players in doubt to play (status_id == 2)
-    df_comp = df_comp[df_comp.status_id == 7].append(df_comp[df_comp.status_id == 2])
+    df_comp = df_comp[df_comp.status_id == 7]._append(df_comp[df_comp.status_id == 2])
 
 
     if not first_rounds: # calculate players stats for team selection
@@ -361,7 +361,7 @@ def main():
         defense_param = {"label": "ZAGUEIROS", "code": 3, "idx": "idx_defense", "qty": 5, "qty_bk": 2}
         midfield_param = {"label": "MEIAS", "code": 4, "idx": "idx_attack", "qty": 7, "qty_bk": 2}
         sidefield_param = {"label": "LATERAIS", "code": 2, "idx": "idx_coach", "qty": 5, "qty_bk": 2}
-        coach_param = {"label": "TÉCNICOS", "code": 6, "idx": "idx_coach", "qty": 5, "qty_bk": 0}
+        coach_param = {"label": "TÉCNICOS", "code": 6, "idx": "idx_defense", "qty": 3, "qty_bk": 0}
         columns_to_print = ["abreviacao", "apelido", "pos_pts", "preco_num", "media_num", "roi", "status_id"]
 
         team_list = []
@@ -402,7 +402,7 @@ def main():
         print()
         team_list.append((0, coach_param))
 
-        budget = 136.44
+        budget = 124.00
         my_team = cart.assemble_team(budget, team_list)
         # now we select the best option for bench
         for param in [goalkeeper_param, attack_param, defense_param, midfield_param, sidefield_param]:
@@ -444,7 +444,7 @@ def main():
 
         # read data from last season to compare
         # df_players_last_season = pd.read_csv("data" + str(season - 1) + "/rodada_38.csv", encoding="cp860")
-        cartola_prev = cartola_api.load_rawdata("mercado_2021_38.txt", "data2021/")
+        cartola_prev = cartola_api.load_rawdata("mercado_2022_38.txt", "data2022/")
 
 
         df_players_last_season = pd.DataFrame(cartola_prev["atletas"])
