@@ -402,7 +402,7 @@ def main():
         print()
         team_list.append((0, coach_param))
 
-        budget = 124.00
+        budget = 114.03
         my_team = cart.assemble_team(budget, team_list)
         # now we select the best option for bench
         for param in [goalkeeper_param, attack_param, defense_param, midfield_param, sidefield_param]:
